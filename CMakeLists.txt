@@ -5,37 +5,93 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(able main.cpp)
+function(add_header MODULE_NAME)
+    set(MODULE_ROOT_DIR "${CMAKE_SOURCE_DIR}/3rdParties/${MODULE_NAME}")
+    
+    # 1. 检查模块目录是否存在
+    if(NOT EXISTS ${MODULE_ROOT_DIR})
+        message(FATAL_ERROR "Module directory not found: ${MODULE_ROOT_DIR}")
+    endif()
 
-set(V8_ROOT_DIR "${CMAKE_SOURCE_DIR}/3rdParties/v8")
+    # 2. 添加头文件目录
+    if(EXISTS "${MODULE_ROOT_DIR}/include")
+        target_include_directories(able PRIVATE "${MODULE_ROOT_DIR}/include")
+    endif()
+endfunction()
 
-# include directories
-target_include_directories(able PRIVATE 
-    "${V8_ROOT_DIR}/include"
-)
+function(add_dll MODULE_NAME)
+    set(MODULE_ROOT_DIR "${CMAKE_SOURCE_DIR}/3rdParties/${MODULE_NAME}")
 
-# lib directories
-target_link_directories(able PRIVATE 
-    "${V8_ROOT_DIR}/lib/${CMAKE_BUILD_TYPE}"
-)
+    add_header(${MODULE_NAME})
 
-# libs
-target_link_libraries(able PRIVATE
-    v8.dll.lib
-    v8_libbase.dll.lib
-    v8_libplatform.dll.lib
-)
-if (WIN32)
-    file(GLOB V8_DLLS 
-        "${V8_ROOT_DIR}/build/${CMAKE_BUILD_TYPE}/*.dll"
-        "${V8_ROOT_DIR}/build/${CMAKE_BUILD_TYPE}/*.dat"
-        "${V8_ROOT_DIR}/build/${CMAKE_BUILD_TYPE}/*.bin"
-    )
-    foreach(dll ${V8_DLLS})
-        add_custom_command(TARGET able POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${dll} $<TARGET_FILE_DIR:able>
-            COMMENT "Copying V8 DLLs to output directory"
+    # 3. 处理库文件
+    set(MODULE_LIB_DIR "${MODULE_ROOT_DIR}/lib/${CMAKE_BUILD_TYPE}")
+    if(NOT EXISTS ${MODULE_LIB_DIR})
+        message(FATAL_ERROR "Library directory not found: ${MODULE_LIB_DIR}")
+    endif()
+
+    target_link_directories(able PRIVATE ${MODULE_LIB_DIR})
+    
+    # 自动查找库文件
+    if(WIN32)
+        file(GLOB_RECURSE LIBS 
+            "${MODULE_LIB_DIR}/*${MODULE_NAME}*.lib"
+            "${MODULE_LIB_DIR}/*${MODULE_NAME}*.dll.lib"
         )
-    endforeach()
-endif()
+    else()
+        file(GLOB LIBS "${MODULE_LIB_DIR}/*.so" "${MODULE_LIB_DIR}/*.dylib")
+    endif()
 
+    # 链接所有找到的库
+    foreach(lib ${LIBS})
+        target_link_libraries(able PRIVATE ${lib})
+    endforeach()
+
+    # 4. Windows平台特殊处理（复制运行时文件）
+    if(WIN32)
+        set(MODULE_BIN_DIR "${MODULE_ROOT_DIR}/bin/${CMAKE_BUILD_TYPE}")
+        if(NOT EXISTS ${MODULE_BIN_DIR})
+            message(FATAL_ERROR "Binary directory not found: ${MODULE_BIN_DIR}")
+        endif()
+
+        # 处理传入的文件类型参数
+        set(file_types ${ARGN})
+        if(NOT file_types)
+            set(file_types "*.dll" "*.pdb")  # 默认复制dll和pdb
+        endif()
+
+        foreach(type ${file_types})
+            file(GLOB files "${MODULE_BIN_DIR}/${type}")
+            foreach(file ${files})
+                add_custom_command(TARGET able POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        "${file}"
+                        "$<TARGET_FILE_DIR:able>"
+                    COMMENT "Copying ${file}"
+                )
+            endforeach()
+        endforeach()
+    endif()
+endfunction()
+
+file(GLOB_RECURSE SOURCES
+    "${CMAKE_SOURCE_DIR}/aspectable/*.cpp"
+    "${CMAKE_SOURCE_DIR}/journal/*.cpp"
+    "${CMAKE_SOURCE_DIR}/needle/*.cpp"
+)
+file(GLOB_RECURSE EXTRA_FILES
+    "${CMAKE_SOURCE_DIR}/journal/*.json"
+)
+
+add_executable(able main.cpp ${SOURCES})
+add_header(nlohmann)
+add_dll(v8 "*.dll" "*.pdb" "*.dat" "*.bin")
+
+foreach(extra_file ${EXTRA_FILES})
+    add_custom_command(TARGET able POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${extra_file}"
+            "$<TARGET_FILE_DIR:able>"
+        COMMENT "Copying ${extra_file}"
+    )
+endforeach()

@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "aspectable/Aspectable.h"
+#include "journal/Journal.h"
 #include "needle/Needle.h"
 #include "needle/Sewable.h"
 
@@ -64,6 +65,10 @@ int main(int argc, const char* argv[])
     needle::Sewable<"A", A>().accept<ConcreteNeedle>();
     needle::Sewable<"name", decltype(&A::run), &A::run>().accept<ConcreteNeedle>();
     needle::Sewable<"m_intField", decltype(&A::m_intField), &A::m_intField>().accept<ConcreteNeedle>();
+
+
+    journal::Journal<journal::Severity::Info>()<< "Hello " << "able";
+    journal::Journal<journal::Severity::Fatal>()<< "Hello " << "able";
 
     std::cout << "Hello, able!\n";
     return 0;
