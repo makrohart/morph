@@ -6,11 +6,11 @@ namespace needle
 {
     template<size_t N>
     struct FixedString {
-        int str[N];
+        char Str[N+1]{0};
         
         constexpr FixedString(const char(&s)[N])
         {
-            std::copy_n(s, N, str);
+            std::copy_n(s, N, Str);
         }
     };
 }

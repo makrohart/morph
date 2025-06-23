@@ -77,6 +77,7 @@ endfunction()
 file(GLOB_RECURSE SOURCES
     "${CMAKE_SOURCE_DIR}/aspectable/*.cpp"
     "${CMAKE_SOURCE_DIR}/journal/*.cpp"
+    "${CMAKE_SOURCE_DIR}/jsEngine/*.cpp"
     "${CMAKE_SOURCE_DIR}/needle/*.cpp"
 )
 file(GLOB_RECURSE EXTRA_FILES

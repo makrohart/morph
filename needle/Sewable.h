@@ -5,35 +5,35 @@
 namespace needle
 {
 	// Type use
-	template<FixedString name, typename C, auto placeholder = nullptr>
-	struct Sewable
-	{
-		template<template<FixedString, typename, auto> typename... Vs>
-		void accept()
-		{
-			(Vs<name, C, placeholder>().visit(), ...);
-		}
-	};
+ 	template<FixedString name, auto placeholder, typename C, typename... Args>
+    struct Sewable
+    {
+        template<template<FixedString, auto, typename, typename...> typename... Vs>
+        void accept()
+        {
+            (Vs<name, placeholder, C, Args...>().visit(), ...);
+        }
+    };
+
+	// Member field use
+ 	template<FixedString name, auto fieldPtr, typename R, typename C>
+    struct Sewable<name, fieldPtr, R C::*>
+    {
+        template<template<FixedString, auto, typename, typename...> typename... Vs>
+        void accept()
+        {
+            (Vs<name, fieldPtr, R C::*>().visit(), ...);
+        }
+    };
 
 	// Member method use
-	template<FixedString name, typename R, typename C, auto fieldPtr>
-	struct Sewable<name, R C::*, fieldPtr>
-	{
-		template<template<FixedString, typename, auto> typename... Vs>
-		void accept()
-		{
-			(Vs<name, R C::*, fieldPtr>().visit(), ...);
-		}
-	};
-
-	// Member method use
-	template<FixedString name, typename R, typename C, typename... Args, auto methodPtr>
-	struct Sewable<name, R(C::*)(Args...), methodPtr>
-	{
-		template<template<FixedString, typename, auto> typename... Vs>
-		void accept()
-		{
-			(Vs<name, R(C::*)(Args...), methodPtr>().visit(), ...);
-		}
-	};
+	template<FixedString name, auto methodPtr, typename R, typename C, typename... Args>
+    struct Sewable<name, methodPtr, R(C::*)(Args...)>
+    {
+        template<template<FixedString, auto, typename, typename...> typename... Vs>
+        void accept()
+        {
+            (Vs<name, methodPtr, R(C::*)(Args...)>().visit(), ...);
+        }
+    };
 }
