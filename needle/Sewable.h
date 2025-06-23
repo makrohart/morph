@@ -1,5 +1,7 @@
 #pragma once
 
+#include <concepts>
+
 #include "FixedString.h"
 
 namespace needle
@@ -23,6 +25,18 @@ namespace needle
         void accept()
         {
             (Vs<name, fieldPtr, R C::*>().visit(), ...);
+        }
+    };
+
+    // Member property use
+ 	template<FixedString name, auto accessor, typename R, typename C>
+        requires GetterSetterPair<decltype(accessor)>
+    struct Sewable<name, accessor, R C::*>
+    {
+        template<template<FixedString, auto, typename, typename...> typename... Vs>
+        void accept()
+        {
+            (Vs<name, accessor, R C::*>().visit(), ...);
         }
     };
 

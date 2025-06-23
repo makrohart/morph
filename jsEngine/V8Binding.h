@@ -28,32 +28,33 @@ struct V8Binding<name, fieldPtr, R C::*> : needle::Needle<name, fieldPtr, R C::*
 {
     void visit() override
     {
-        // v8::AccessorGetterCallback getter = [](v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info) {
-        //     v8::Isolate* pIsolate = info.GetIsolate();
-        //     v8::Local<v8::Object> self = info.Holder();
-        //     v8::Local<v8::External> native = v8::Local<v8::External>::Cast(self->GetInternalField(0));
-        //     C* pNative = static_cast<C*>(native->Value());
+    }
+};
 
-        //     // R result =  pNative->(fieldPtr, )
-        //     // using MethodType = V();
-        //     // InvokeGetterPtrType<T, V> invokePtr = &T::template invoke<T, MethodType>;
+template<needle::FixedString name, auto accessor, typename R, typename C>
+    requires needle::GetterSetterPair<decltype(accessor)>
+struct V8Binding<name, accessor, R C::*> : needle::Needle<name, accessor, R C::*>
+{
+    void visit() override
+    {
+        v8::AccessorGetterCallback getter = [](v8::Local<v8::String> property, const v8::PropertyCallbackInfo<v8::Value>& info) {
+            v8::Isolate* pIsolate = info.GetIsolate();
+            v8::Local<v8::Object> self = info.Holder();
+            v8::Local<v8::External> native = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+            C* pNative = static_cast<C*>(native->Value());
 
-        //     // V result = std::invoke(invokePtr, pNative, pGetter);
+            R result = pNative->operator()(accessor.first);
+            info.GetReturnValue().Set(JSConverter<v8::Local<v8::Value>, R>().toJSFromCpp(result));
+        };
 
-        //     // info.GetReturnValue().Set(pj::utils::toJSFromNative(pIsolate, result));
-        // };
+        v8::AccessorSetterCallback setter = [](v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info) {
+            v8::Isolate* pIsolate = info.GetIsolate();
+            v8::Local<v8::Object> self = info.Holder();
+            v8::Local<v8::External> native = v8::Local<v8::External>::Cast(self->GetInternalField(0));
+            C* pNative = static_cast<C*>(native->Value());
 
-        // v8::AccessorSetterCallback setter = [](v8::Local<v8::String> property, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info) {
-        //     v8::Isolate* pIsolate = info.GetIsolate();
-        //     v8::Local<v8::Object> self = info.Holder();
-        //     v8::Local<v8::External> native = v8::Local<v8::External>::Cast(self->GetInternalField(0));
-        //     // T* pNative = static_cast<T*>(native->Value());
-
-        //     // using MethodType = void(V);
-        //     // InvokeSetterPtrType<T, V> invokePtr = &T::template invoke<T, MethodType, V>;
-
-        //     // std::invoke(invokePtr, pNative, pSetter, pj::utils::toNativeFromJS<V>(pIsolate, info.Data()));
-        // };
+            pNative->operator()(accessor.second, JSConverter<v8::Local<v8::Value>, R>().toCppFromJS(info.Data()));
+        };
 
         std::stack<JSType>& jsTypes = JSTypes::getInstance()->getJSTypes();
         JSType& jsType = jsTypes.top();

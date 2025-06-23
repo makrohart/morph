@@ -14,6 +14,7 @@ namespace aspectable
             (..., As::pre<T>(std::forward<Args>(args)...));
         }   
 
+        // TODO: function const is not supported yet;
         template<typename R, typename T, typename... Args>
         auto operator()(R (T::* methodPtr)(Args...), Args&&... args)
         {
@@ -21,7 +22,7 @@ namespace aspectable
 
             if constexpr (std::is_void_v<R>) {
                 (static_cast<T*>(this)->*methodPtr)(std::forward<Args>(args)...);
-                (..., As::post(nullptr, methodPtr, std::forward<Args>(args)...));
+                (..., As::post((R*)nullptr, methodPtr, std::forward<Args>(args)...));
             }
             else {
                 R retVal = (static_cast<T*>(this)->*methodPtr)(std::forward<Args>(args)...);

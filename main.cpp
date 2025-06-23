@@ -11,6 +11,9 @@ struct A : public aspectable::Aspectable<aspectable::Aspect>
 {
     A() : aspectable::Aspectable<aspectable::Aspect>(this) {}
 
+    int getIntField() { return m_intField; }
+    void setIntField(const int value) { m_intField = value; }
+
     int run(int) { return 1; }
 
     int m_intField;
@@ -21,6 +24,7 @@ int main(int argc, const char* argv[])
     needle::Sewable<"A", nullptr, A>().accept<V8Binding>();
     needle::Sewable<"run", &A::run, decltype(&A::run)>().accept<V8Binding>();
     needle::Sewable<"m_intField", &A::m_intField, decltype(&A::m_intField)>().accept<V8Binding>();
+    needle::Sewable<"IntField", std::pair(&A::getIntField, &A::setIntField), decltype(&A::m_intField)>().accept<V8Binding>();
 
     journal::Journal<journal::Severity::Info>()<< "Hello " << "able";
     journal::Journal<journal::Severity::Fatal>()<< "Hello " << "able";
