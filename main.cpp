@@ -3,8 +3,10 @@
 
 #include "aspectable/Aspectable.h"
 #include "journal/Journal.h"
+#include "jsEngine/JSEngine.h"
 #include "jsEngine/V8Binding.h"
 #include "jsEngine/V8Converter.h"
+#include "jsEngine/V8Engine.h"
 #include "needle/Sewable.h"
 
 struct A : public aspectable::Aspectable<aspectable::Aspect>
@@ -29,6 +31,8 @@ int main(int argc, const char* argv[])
     journal::Journal<journal::Severity::Info>()<< "Hello " << "able";
     journal::Journal<journal::Severity::Fatal>()<< "Hello " << "able";
 
+    JSEngine* engine = new V8Engine();
+    engine->run("D:/Projects/able/out/build/x64-debug/Debug/Journal.js");
     std::cout << "Hello, able!\n";
     return 0;
 }

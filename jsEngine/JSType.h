@@ -1,11 +1,12 @@
 #pragma once
 
-#include <stack>
+#include <memory>
+#include <vector>
 
 class JSType
 {
     public:
-    virtual ~JSType() = default;
+    virtual ~JSType() {};
 };
 
 class JSTypes
@@ -17,12 +18,12 @@ class JSTypes
         return &s_instance;
     }
 
-    void addJSType(JSType&& jsType)
+    void addJSType(std::unique_ptr<JSType> pJSType)
     {
-        m_jsTypes.push(jsType);
+        m_jsTypes.push_back(std::move(pJSType));
     }
 
-    std::stack<JSType>& getJSTypes()
+    std::vector<std::unique_ptr<JSType>>& getJSTypes()
     {
         return  m_jsTypes;
     }
@@ -30,5 +31,5 @@ class JSTypes
     private:
     JSTypes() =  default;
 
-    std::stack<JSType> m_jsTypes;
+    std::vector<std::unique_ptr<JSType>> m_jsTypes;
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -11,6 +12,7 @@ class V8Type : public JSType
 {
     public:
     V8Type(const std::string& name) : m_name(name) {}
+    ~V8Type() override {};
 
     void addConstructor(v8::FunctionCallback callback);
     void addMethod(const std::string& name, v8::FunctionCallback callback);

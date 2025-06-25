@@ -18,8 +18,9 @@ struct V8Binding : needle::Needle<name, placeholder, C, Args...>
             info.This()->SetInternalField(0, v8::External::New(pIsolate, pNative));
         };
 
-        V8Type v8Type(name.Str);
-        JSTypes::getInstance()->addJSType(std::move(v8Type));
+        std::unique_ptr<V8Type> pJSType = std::make_unique<V8Type>(name.Str);
+        pJSType->addConstructor(callback);
+        JSTypes::getInstance()->addJSType(std::move(pJSType));
     }
 };
 
@@ -56,11 +57,11 @@ struct V8Binding<name, accessor, R C::*> : needle::Needle<name, accessor, R C::*
             pNative->operator()(accessor.second, JSConverter<v8::Local<v8::Value>, R>().toCppFromJS(info.Data()));
         };
 
-        std::stack<JSType>& jsTypes = JSTypes::getInstance()->getJSTypes();
-        JSType& jsType = jsTypes.top();
-        V8Type* pV8Type = dynamic_cast<V8Type*>(&jsType);
+        std::vector<std::unique_ptr<JSType>>& jsTypes = JSTypes::getInstance()->getJSTypes();
+        std::unique_ptr<JSType>& pJSType = *jsTypes.rbegin();
+        V8Type* pV8Type = dynamic_cast<V8Type*>(pJSType.get());
         if (pV8Type)
-            pV8Type->addProperty(name.Str, nullptr, nullptr);
+            pV8Type->addProperty(name.Str, getter, setter);
     }
 };
 
@@ -91,9 +92,9 @@ struct V8Binding<name, methodPtr, R(C::*)(Args...)> : needle::Needle<name, metho
             }
         };
 
-        std::stack<JSType>& jsTypes = JSTypes::getInstance()->getJSTypes();
-        JSType& jsType = jsTypes.top();
-        V8Type* pV8Type = dynamic_cast<V8Type*>(&jsType);
+        std::vector<std::unique_ptr<JSType>>& jsTypes = JSTypes::getInstance()->getJSTypes();
+        std::unique_ptr<JSType>& pJSType = *jsTypes.rbegin();
+        V8Type* pV8Type = dynamic_cast<V8Type*>(pJSType.get());
         if (pV8Type)
             pV8Type->addMethod(name.Str, callback);
     }

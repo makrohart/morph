@@ -2,8 +2,7 @@
 
 void V8Type::addConstructor(v8::FunctionCallback callback)
 {
-    if (!m_constructor)
-        m_constructor = callback;
+    m_constructor = callback;     
 }
 
 void V8Type::addMethod(const std::string& name, v8::FunctionCallback callback)
@@ -17,15 +16,7 @@ void V8Type::addMethod(const std::string& name, v8::FunctionCallback callback)
 void V8Type::addProperty(const std::string& name, v8::AccessorGetterCallback getterCallback /*= nullptr*/, v8::AccessorSetterCallback setterCallback /*= nullptr*/)
 {
     if (m_accessors.find(name) != m_accessors.cend())
-    {
-        auto& [getter, setter] = m_accessors[name];
-        if (getterCallback && !getter)
-            getter = getterCallback;
-        if (setterCallback && !setter)
-            setter = setterCallback;
-
         return;
-    }
 
     m_accessors[name] = std::make_pair(getterCallback, setterCallback);
 }

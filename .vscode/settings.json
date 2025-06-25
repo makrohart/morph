@@ -76,6 +76,7 @@
         "deque": "cpp",
         "queue": "cpp",
         "stack": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "*.idl": "cpp"
     }
 }

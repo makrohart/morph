@@ -13,31 +13,31 @@ namespace journal
     };
 
     template<Severity severity>
-    std::string ToStringFrom()
+    inline std::string ToStringFrom()
     {
         throw std::exception("ToStringFrom should be specialized on severity!");
     };
 
     template<>
-    std::string ToStringFrom<Severity::Info>()
+    inline std::string ToStringFrom<Severity::Info>()
     {
         return "Info";
     };
 
     template<>
-    std::string ToStringFrom<Severity::Warning>()
+    inline std::string ToStringFrom<Severity::Warning>()
     {
         return "Warning";
     };
 
     template<>
-    std::string ToStringFrom<Severity::Error>()
+    inline std::string ToStringFrom<Severity::Error>()
     {
         return "Error";
     };
 
     template<>
-    std::string ToStringFrom<Severity::Fatal>()
+    inline std::string ToStringFrom<Severity::Fatal>()
     {
         return "Fatal";
     };
