@@ -16,7 +16,11 @@ struct A : public aspectable::Aspectable<aspectable::Aspect>
     int getIntField() { return m_intField; }
     void setIntField(const int value) { m_intField = value; }
 
-    int run(int) { return 1; }
+    int run(int) 
+    { 
+        journal::Journal<journal::Severity::Info>() << "A::run";
+        return 1; 
+    }
 
     int m_intField;
 };
@@ -32,7 +36,10 @@ int main(int argc, const char* argv[])
     journal::Journal<journal::Severity::Fatal>()<< "Hello " << "able";
 
     JSEngine* engine = new V8Engine();
-    engine->run("D:/Projects/able/out/build/x64-debug/Debug/Journal.js");
+    engine->run({
+        "D:/Projects/able/reacts-umd/dist/reacts.umd.js",
+        "D:/Projects/able/out/build/x64-debug/Debug/Journal.js",
+    });
     std::cout << "Hello, able!\n";
     return 0;
 }

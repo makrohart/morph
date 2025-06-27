@@ -79,6 +79,8 @@ file(GLOB_RECURSE SOURCES
     "${CMAKE_SOURCE_DIR}/journal/*.cpp"
     "${CMAKE_SOURCE_DIR}/jsEngine/*.cpp"
     "${CMAKE_SOURCE_DIR}/needle/*.cpp"
+    "${CMAKE_SOURCE_DIR}/playable/*.cpp"
+    "${CMAKE_SOURCE_DIR}/morph/*.cpp"
 )
 file(GLOB_RECURSE EXTRA_FILES
     "${CMAKE_SOURCE_DIR}/journal/*.json"

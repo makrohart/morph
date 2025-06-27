@@ -1,17 +1,22 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 class JSEngine
 {
     public:
-    inline void run(const std::string& script)
+    inline void run(const std::vector<std::string>& scripts)
     {
         createContext();
-        if (!compile(script))
-            return;
 
-        execute(script);
+        for (const auto& script : scripts)
+        {
+            if (!compile(script))
+                return;
+
+            execute(script);
+        }
     }
 
     virtual void createContext() = 0;
