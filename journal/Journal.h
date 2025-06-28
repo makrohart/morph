@@ -3,16 +3,19 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <string>
 
+#include "../aspectable/Aspectable.h"
 #include "Journalists.h"
 #include "Severity.h"
 
 namespace journal
 {
     template<Severity severity>
-    class Journal
+    class Journal : public aspectable::Aspectable<aspectable::Aspect>
     {
-        public:   
+        public:
+        Journal() : aspectable::Aspectable<aspectable::Aspect>(this) {}
         ~Journal()
         {
             std::string data = "// " + getTimeStamp() + " [" + ToStringFrom<severity>() + "] " + m_data + "\n";
@@ -31,6 +34,12 @@ namespace journal
         {
             m_data += pStr;
             return  *this;
+        }
+
+        void log(std::string str)
+        {
+            // Do not invoke log function inside, it will leads to stack overflow
+            Journal<severity>() << str.c_str();
         }
 
         private:

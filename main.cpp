@@ -32,6 +32,9 @@ int main(int argc, const char* argv[])
     needle::Sewable<"m_intField", &A::m_intField, decltype(&A::m_intField)>().accept<V8Binding>();
     needle::Sewable<"IntField", std::pair(&A::getIntField, &A::setIntField), decltype(&A::m_intField)>().accept<V8Binding>();
 
+    needle::Sewable<"Journal", nullptr, journal::Journal<journal::Severity::Info>>().accept<V8Binding>();
+    needle::Sewable<"log", &journal::Journal<journal::Severity::Info>::log, decltype(&journal::Journal<journal::Severity::Info>::log)>().accept<V8Binding>();
+
     journal::Journal<journal::Severity::Info>()<< "Hello " << "able";
     journal::Journal<journal::Severity::Fatal>()<< "Hello " << "able";
 
