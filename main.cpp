@@ -8,6 +8,7 @@
 #include "jsEngine/V8Converter.h"
 #include "jsEngine/V8Engine.h"
 #include "needle/Sewable.h"
+#include "morph/mvvm/ViewModel.h"
 
 struct A : public aspectable::Aspectable<aspectable::Aspect>
 {
@@ -34,6 +35,15 @@ int main(int argc, const char* argv[])
 
     needle::Sewable<"Journal", nullptr, journal::Journal<journal::Severity::Info>>().accept<V8Binding>();
     needle::Sewable<"log", &journal::Journal<journal::Severity::Info>::log, decltype(&journal::Journal<journal::Severity::Info>::log)>().accept<V8Binding>();
+
+    needle::Sewable<"ViewModel", nullptr, mvvm::ViewModel>().accept<V8Binding>();
+    needle::Sewable<"onPropertyChanged", &mvvm::ViewModel::onPropertyChanged, decltype(&mvvm::ViewModel::onPropertyChanged)>().accept<V8Binding>();
+    needle::Sewable<"notifyPropertyChanged", &mvvm::ViewModel::notifyPropertyChanged, decltype(&mvvm::ViewModel::notifyPropertyChanged)>().accept<V8Binding>();
+    
+    needle::Sewable<"IntField", std::pair(&mvvm::ViewModel::getIntField, &mvvm::ViewModel::setIntField), decltype(&mvvm::ViewModel::m_intField)>().accept<V8Binding>();
+    needle::Sewable<"StringField", std::pair(&mvvm::ViewModel::getStringField, &mvvm::ViewModel::setStringField), decltype(&mvvm::ViewModel::m_stringField)>().accept<V8Binding>();
+    needle::Sewable<"addInt", &mvvm::ViewModel::addInt, decltype(&mvvm::ViewModel::addInt)>().accept<V8Binding>();
+
 
     journal::Journal<journal::Severity::Info>()<< "Hello " << "able";
     journal::Journal<journal::Severity::Fatal>()<< "Hello " << "able";
