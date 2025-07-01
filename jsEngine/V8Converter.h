@@ -6,6 +6,7 @@
 
 #include "v8.h"
 #include "JSConverter.h"
+#include "../morph/mvvm/ViewModel.h"
 
 // Integer
 template<typename CppType>
@@ -64,5 +65,43 @@ struct JSConverter<v8::Local<v8::Value>, std::string>
     v8::Local<v8::Value> toJSFromCpp(const std::string& value)
     {
         return JSConverter<v8::Local<v8::Value>, char*>().toJSFromCpp(value.c_str());
+    }
+};
+
+template<>
+struct JSConverter<v8::Local<v8::Value>, mvvm::ViewModel::PropertyChangedEventHandler>
+{
+    mvvm::ViewModel::PropertyChangedEventHandler toCppFromJS(v8::Local<v8::Value> value)
+    {
+        if (!value->IsFunction()) {
+            throw std::runtime_error("Expected a function");
+        }
+
+        v8::Local<v8::Function> func = value.As<v8::Function>();
+        auto persistent = std::make_shared<v8::Persistent<v8::Function>>(v8::Isolate::GetCurrent(), func);
+
+        return [persistent]() {
+            auto isolate = v8::Isolate::GetCurrent();
+            v8::HandleScope scope(isolate);
+            auto localFunc = persistent->Get(isolate);
+            localFunc->Call(isolate->GetCurrentContext(), v8::Undefined(isolate), 0, nullptr);
+        };
+    }
+
+    v8::Local<v8::Value> toJSFromCpp(const mvvm::ViewModel::PropertyChangedEventHandler& value)
+    {
+        auto isolate = v8::Isolate::GetCurrent();
+        auto context = isolate->GetCurrentContext();
+
+        auto ext = v8::External::New(isolate, new auto(value));
+
+        return v8::Function::New(
+            context, 
+            [](const v8::FunctionCallbackInfo<v8::Value>& args) {
+                auto ext = v8::Local<v8::External>::Cast(args.Data());
+                auto& callback = *static_cast<mvvm::ViewModel::PropertyChangedEventHandler*>(ext->Value());
+                callback(); 
+            }, 
+            ext).ToLocalChecked();
     }
 };
