@@ -90,6 +90,7 @@ file(GLOB_RECURSE EXTRA_FILES
 add_executable(able main.cpp ${SOURCES})
 add_header(nlohmann)
 add_dll(v8 "*.dll" "*.pdb" "*.dat" "*.bin")
+add_dll(sdl "*.dll" "*.pdb")
 
 foreach(extra_file ${EXTRA_FILES})
     add_custom_command(TARGET able POST_BUILD
