@@ -1,5 +1,14 @@
-// 导出所有需要打包的库
-export * as React from 'react';
-export * as ReactDOM from 'react-dom';
-export * as ReactReconciler from 'react-reconciler';
-export * as Scheduler from 'scheduler';
+// 正确导入方式
+import Scheduler from 'scheduler';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import ReactReconciler from 'react-reconciler';
+
+
+// 导出为统一命名空间
+export {
+  Scheduler,
+  React,
+  ReactDOM,
+  ReactReconciler,
+};

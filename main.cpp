@@ -51,6 +51,7 @@ int main(int argc, const char* argv[])
     JSEngine* engine = new V8Engine();
     engine->run({
         "D:/Projects/able/reacts-umd/dist/reacts.umd.js",
+        "D:/Projects/able/morph/morph.js",
         "D:/Projects/able/out/build/x64-debug/Debug/Journal.js",
     });
     std::cout << "Hello, able!\n";
