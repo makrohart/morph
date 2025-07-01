@@ -84,6 +84,7 @@ file(GLOB_RECURSE SOURCES
 )
 file(GLOB_RECURSE EXTRA_FILES
     "${CMAKE_SOURCE_DIR}/journal/*.json"
+    "${CMAKE_SOURCE_DIR}/add-ins/*.js"
 )
 
 add_executable(able main.cpp ${SOURCES})
