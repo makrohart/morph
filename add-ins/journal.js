@@ -126,4 +126,4 @@ journal.log("Render call completed");
 var node = new MorphNode();
 var node1 = new MorphNode();
 node.add(node1);
-node.remove(node1);
+// node.remove(node1);

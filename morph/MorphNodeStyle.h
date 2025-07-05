@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 
 #include "../aspectable/Aspectable.h"
@@ -7,77 +8,85 @@
 
 namespace morph
 {
-    struct MorphColor
-    {
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        uint8_t a;
-    };
-
-    struct YGNodeDeleter
-    {
-        void operator()(YGNodeRef ygNode)
-        {
-            YGNodeFree(ygNode);
-        }
-    };
-
     struct MorphNodeStyle : virtual aspectable::Aspectable<aspectable::Aspect>
     {
+        using Margin = std::array<double, 4>;
+        using Color = std::array<uint8_t, 4>;
+        struct YGNodeDeleter
+        {
+            void operator()(YGNodeRef ygNode)
+            {
+                YGNodeFree(ygNode);
+            }
+        };
+      
         MorphNodeStyle() : aspectable::Aspectable<aspectable::Aspect>(this) 
         {
             m_yogaNode = std::shared_ptr<YGNode>(YGNodeNew(), YGNodeDeleter{});
-            YGNodeStyleSetWidth(m_yogaNode.get(), 100);
-            YGNodeStyleSetHeight(m_yogaNode.get(), 100);
-            YGNodeStyleSetFlexDirection(m_yogaNode.get(), m_flexDirection);
+            setHeight(-1, 100);
+            setWidth(-1, 50);
+            setMargin(5, 5, 5, 5);
+            setFlexDirection(YGFlexDirectionColumn);
         }
 
         ~MorphNodeStyle() = default;
 
-        using Color = uint8_t;
-
-        std::shared_ptr<YGNode> getYGNodeRef() 
+        double getHeight() { return YGNodeStyleGetHeight(m_yogaNode.get()).value; }
+        void setHeight(double height, double heightPercentage)
         {
-            return m_yogaNode; 
+            // Use absoloute height
+            if (heightPercentage > 0 && heightPercentage <= 100)
+            {
+                YGNodeStyleSetHeightPercent(m_yogaNode.get(), heightPercentage);
+                return;
+            }
+
+            YGNodeStyleSetHeight(m_yogaNode.get(), height);
         }
 
-        double getFlex() { return m_flex; }
-        void setFlex(const double flex) 
-        { 
-            m_flex = flex; 
-            YGNodeStyleSetFlex(m_yogaNode.get(), m_flex);
+        double getWidth() { return YGNodeStyleGetWidth(m_yogaNode.get()).value; }
+        void setWidth(double width, double widthPercentage)
+        {
+            // Use absoloute height
+            if (widthPercentage > 0 && widthPercentage <= 100)
+            {
+                YGNodeStyleSetWidthPercent(m_yogaNode.get(), widthPercentage);
+                return;
+            }
+
+            YGNodeStyleSetWidth(m_yogaNode.get(), width);
         }
 
-        double getMargin() { return m_margin; }
-        void setMargin(const double margin)
-        { 
-            m_margin = margin; 
-            YGNodeStyleSetMargin(m_yogaNode.get(), YGEdgeAll, m_margin);
+        MorphNodeStyle::Margin getMargin()
+        {
+            return MorphNodeStyle::Margin{
+                YGNodeStyleGetMargin(m_yogaNode.get(), YGEdgeTop).value,
+                YGNodeStyleGetMargin(m_yogaNode.get(), YGEdgeRight).value,
+                YGNodeStyleGetMargin(m_yogaNode.get(), YGEdgeBottom).value,
+                YGNodeStyleGetMargin(m_yogaNode.get(), YGEdgeLeft).value,
+            };
+        }
+        void setMargin(double top, double right, double bottom, double left)
+        {
+            YGNodeStyleSetMargin(m_yogaNode.get(), YGEdgeTop, top);
+            YGNodeStyleSetMargin(m_yogaNode.get(), YGEdgeRight, right);
+            YGNodeStyleSetMargin(m_yogaNode.get(), YGEdgeBottom, bottom);
+            YGNodeStyleSetMargin(m_yogaNode.get(), YGEdgeLeft, left);     
         }
 
-        int getFlexDirection() { return m_flexDirection; }
-        void setFlexDirection(const int flexDirection) { m_flexDirection = (YGFlexDirection)flexDirection; }
+        int getFlexDirection() { return YGNodeStyleGetFlexDirection(m_yogaNode.get()); }
+        void setFlexDirection(const int flexDirection) { YGNodeStyleSetFlexDirection(m_yogaNode.get(), (YGFlexDirection)flexDirection); }
 
-        int getJustify() { return m_justifyContent; }
-        void setJustify(const int justifyContent) { m_justifyContent = (YGJustify)justifyContent; }
+        Color getBackgroundColor() { return m_backgroundColor; }
+        void setBackgroundColor(const Color backgroundColor) { m_backgroundColor = backgroundColor; }
+        Color getBorderColor() { return m_borderColor; }
+        void setBorderColor(const Color borderColor) { m_borderColor = borderColor; }
 
-        MorphColor getBackgroundColor() { return m_backgroundColor; }
-        void setBackgroundColor(const MorphColor backgroundColor) { m_backgroundColor = backgroundColor; }
-
-        MorphColor getBorderColor() { return m_borderColor; }
-        void setBorderColor(const MorphColor borderColor) { m_borderColor = borderColor; }
+        std::shared_ptr<YGNode> getYGNodeRef() { return m_yogaNode; }
 
         private:
-        // Layout
-        double m_flex{0.0};
-        double m_margin{0.0};
-        YGFlexDirection m_flexDirection{YGFlexDirectionColumn};
-        YGJustify m_justifyContent{YGJustifyFlexStart};
-
-        // Render
-        MorphColor m_backgroundColor{0, 0, 0, 255};
-        MorphColor m_borderColor{255, 255, 255, 255};
+        Color m_backgroundColor{255, 255, 255, 255};
+        Color m_borderColor{0, 0, 0, 255};
         
         std::shared_ptr<YGNode> m_yogaNode{nullptr};
     };

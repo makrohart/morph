@@ -126,7 +126,7 @@ struct JSConverter<v8::Local<v8::Value>, CppType>
         {
             v8::Local<v8::External> native = v8::Local<v8::External>::Cast(obj->GetInternalField(0));
             CppType* pNative = static_cast<CppType*>(native->Value());
-            return *pNative;
+                return *pNative;
         }
 
         pIsolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(pIsolate, "Invalid MyClass object")));

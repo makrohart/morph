@@ -58,5 +58,64 @@ int main(int argc, const char* argv[])
         "D:/Projects/able/out/build/x64-debug/Debug/journal.js",
     });
     std::cout << "Hello, able!\n";
+
+    // 初始化 SDL2 窗口信息
+    if (!SDL_Init(SDL_INIT_VIDEO))
+    {
+        journal::Journal<journal::Severity::Fatal>() << "SDL_Init error: " << SDL_GetError();
+        return -1;
+    }
+
+    // 2. 创建窗口
+    SDL_Window* window = SDL_CreateWindow("able", 1000, 600, SDL_WINDOW_RESIZABLE);
+
+    if (!window)
+    {
+        journal::Journal<journal::Severity::Fatal>() << "SDL_CreateWindow error: " << SDL_GetError();
+        SDL_Quit();
+        return -1;
+    }
+
+    // 3. 创建渲染器
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
+
+    if (!renderer) {
+        journal::Journal<journal::Severity::Fatal>() << "SDL_CreateRenderer error: " << SDL_GetError();
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return -1;
+    }
+
+    // 4. 主循环
+    bool running = true;
+    while (running) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) {
+                running = false;  // 用户点击关闭按钮
+            }
+        }
+
+        // 清屏（白色背景）
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderClear(renderer);
+
+        // Render nodes
+        morph::MorphNode* pRootNode = morph::MorphNode::getRootNode();
+        if (pRootNode)
+        {
+            YGNodeCalculateLayout(pRootNode->getYGNodeRef().get(), 1000, 600, YGDirectionLTR);
+            pRootNode->render(renderer, 0, 0);
+        }
+
+        // 更新屏幕
+        SDL_RenderPresent(renderer);
+    }
+
+    // 5. 清理资源
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
     return 0;
 }

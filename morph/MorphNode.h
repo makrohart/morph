@@ -12,7 +12,11 @@ namespace morph
 {
     struct MorphNode : virtual MorphNodeStyle
     {
-        MorphNode() : aspectable::Aspectable<aspectable::Aspect>(this) {}
+        MorphNode() : aspectable::Aspectable<aspectable::Aspect>(this)
+        {
+            if (!MorphNode::getRootNode())
+                MorphNode::setRootNode(this);         
+        }
 
         ~MorphNode()
         {
@@ -27,12 +31,6 @@ namespace morph
                 }
             }
             m_pChildren.clear();
-        }
-
-        static int getNextId()
-        {
-            static int s_id{0};
-            return s_id++;
         }
 
         void add(MorphNode* pChild)  
@@ -84,27 +82,41 @@ namespace morph
 
         void render(SDL_Renderer *renderer, int offsetX, int offsetY)
         {
-             YGNodeRef yogaNode = getYGNodeRef().get();
+            YGNodeRef yogaNode = getYGNodeRef().get();
 
-            int x = offsetX + (int)YGNodeLayoutGetLeft(yogaNode);
-            int y = offsetY + (int)YGNodeLayoutGetTop(yogaNode);
-            int w = (int)YGNodeLayoutGetWidth(yogaNode);
-            int h = (int)YGNodeLayoutGetHeight(yogaNode);
+            double l = YGNodeLayoutGetLeft(yogaNode);
+            double t = YGNodeLayoutGetTop(yogaNode);
+            double r = YGNodeLayoutGetRight(yogaNode);
+            double b = YGNodeLayoutGetBottom(yogaNode);
+            double w = YGNodeLayoutGetWidth(yogaNode);
+            double h = YGNodeLayoutGetHeight(yogaNode);
+            const auto [top, right, bottom, left] = getMargin();
 
             // 绘制背景
-            MorphColor bg = getBackgroundColor();
-            SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
-            SDL_FRect rect {(float)x, (float)y, (float)w, (float)h};
+            auto backgroundColor = getBackgroundColor();
+            SDL_SetRenderDrawColor(renderer, backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
+            SDL_FRect rect {(float)offsetX, (float)offsetY, (float)(w - l - r), (float)(h - t - b)};
             SDL_RenderFillRect(renderer, &rect);
 
             // 绘制边框
-            MorphColor border = getBorderColor();
-            SDL_SetRenderDrawColor(renderer, border.r, border.g, border.b, border.a);
+            auto borderColor = getBorderColor();
+            SDL_SetRenderDrawColor(renderer, borderColor[0], borderColor[1], borderColor[2], borderColor[3]);
             SDL_RenderRect(renderer, &rect);
 
             // 递归渲染子节点
             for (auto& pChild : m_pChildren)
-                pChild->render(renderer, x, y);
+                pChild->render(renderer, offsetX, offsetY);
+        }
+
+        static MorphNode* getRootNode();
+        
+        static void setRootNode(MorphNode* node);
+        
+        private:
+        static int getNextId()
+        {
+            static int s_id{0};
+            return s_id++;
         }
 
         private:
