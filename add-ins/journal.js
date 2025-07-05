@@ -121,3 +121,9 @@ const container = {};
 journal.log("About to render App component");
 render(React.createElement(App), container);
 journal.log("Render call completed");
+
+
+var node = new MorphNode();
+var node1 = new MorphNode();
+node.add(node1);
+node.remove(node1);

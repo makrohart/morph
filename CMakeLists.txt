@@ -120,6 +120,8 @@ file(GLOB_RECURSE SOURCES
     "${CMAKE_SOURCE_DIR}/playable/*.h"
     "${CMAKE_SOURCE_DIR}/morph/*.cpp"
     "${CMAKE_SOURCE_DIR}/morph/*.h"
+    "${CMAKE_SOURCE_DIR}/layout/*.cpp"
+    "${CMAKE_SOURCE_DIR}/layout/*.h"
 )
 file(GLOB_RECURSE EXTRA_FILES
     "${CMAKE_SOURCE_DIR}/journal/*.json"

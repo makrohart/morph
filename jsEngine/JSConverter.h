@@ -7,7 +7,7 @@ struct JSConverter
 {
     CppType toCppFromJS(JSType value)
     {
-        static_assert("Not supported type");
+        static_assert(false, "Not supported type");
     }
 
     JSType toJSFromCpp(CppType value)

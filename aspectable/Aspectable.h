@@ -7,6 +7,8 @@ namespace aspectable
     template<typename... As>
     struct Aspectable : As...
     {
+        virtual ~Aspectable() = default;
+        
         // Constructor
         template<typename T, typename... Args>  
         explicit Aspectable(T* pSelf, Args&&... args)
@@ -21,11 +23,11 @@ namespace aspectable
             (..., As::pre(methodPtr, std::forward<Args>(args)...));
 
             if constexpr (std::is_void_v<R>) {
-                (static_cast<T*>(this)->*methodPtr)(std::forward<Args>(args)...);
+                (dynamic_cast<T*>(this)->*methodPtr)(std::forward<Args>(args)...);
                 (..., As::post((R*)nullptr, methodPtr, std::forward<Args>(args)...));
             }
             else {
-                R retVal = (static_cast<T*>(this)->*methodPtr)(std::forward<Args>(args)...);
+                R retVal = (dynamic_cast<T*>(this)->*methodPtr)(std::forward<Args>(args)...);
                 (..., As::post(&retVal, methodPtr, std::forward<Args>(args)...));
                 return retVal;
             }
