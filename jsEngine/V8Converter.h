@@ -151,3 +151,48 @@ struct JSConverter<v8::Local<v8::Value>, CppType>
     }
 };
 
+template<typename CppType>
+    requires std::is_class<CppType>::value
+struct JSConverter<v8::Local<v8::Value>, CppType*>
+{
+    CppType* toCppFromJS(v8::Local<v8::Value> value)
+    {
+        v8::Isolate* pIsolate = v8::Isolate::GetCurrent();
+        v8::HandleScope scope(pIsolate);
+
+        if (!value->IsObject())
+        {
+            pIsolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(pIsolate, "Expected a class object")));
+            throw std::invalid_argument("v8::Local<v8::Value> value should be a class object");
+        }
+
+        v8::Local<v8::Object> obj = value.As<v8::Object>();
+        if (obj->InternalFieldCount() > 0)
+        {
+            v8::Local<v8::External> native = v8::Local<v8::External>::Cast(obj->GetInternalField(0));
+            CppType* pNative = static_cast<CppType*>(native->Value());
+                return pNative;
+        }
+
+        pIsolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(pIsolate, "Invalid MyClass object")));
+        throw std::invalid_argument("v8::Local<v8::Value> value should be binded  a class object");
+    }
+
+    v8::Local<v8::Value> toJSFromCpp(const CppType& value)
+    {
+        throw std::runtime_error();
+        // v8::EscapableHandleScope scope(isolate);
+
+        // // 1. 获取全局构造函数
+        // v8::Local<v8::Function> constructor = g_myClassConstructor.Get(isolate);
+
+        // // 2. 调用构造函数创建对象
+        // v8::Local<v8::Object> obj = constructor->NewInstance(isolate->GetCurrentContext()).ToLocalChecked();
+
+        // // 3. 关联 C++ 对象
+        // obj->SetAlignedPointerInInternalField(0, const_cast<MyClass*>(&cppObj));
+
+        // return scope.Escape(obj);
+    }
+};
+

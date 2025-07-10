@@ -79,7 +79,10 @@
         "variant": "cpp",
         "*.idl": "cpp",
         "set": "cpp",
-        "bitset": "cpp"
+        "bitset": "cpp",
+        "thread": "cpp",
+        "mutex": "cpp",
+        "stop_token": "cpp"
     },
     "workbench.editor.wrapTabs": true
 }

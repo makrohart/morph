@@ -10,6 +10,7 @@
 #include "needle/Sewable.h"
 #include "morph/mvvm/ViewModel.h"
 #include "morph/MorphNode.h"
+#include "morph/MorphTimer.h"
 
 struct A : public aspectable::Aspectable<aspectable::Aspect>
 {
@@ -48,15 +49,22 @@ int main(int argc, const char* argv[])
     needle::Sewable<"add", &morph::MorphNode::add, decltype(&morph::MorphNode::add)>().accept<V8Binding>();
     needle::Sewable<"remove", &morph::MorphNode::remove, decltype(&morph::MorphNode::remove)>().accept<V8Binding>();
 
+    needle::Sewable<"MorphTimer", nullptr, morph::MorphTimer>().accept<V8Binding>();
+    needle::Sewable<"setTimeout", &morph::MorphTimer::setTimeout, decltype(&morph::MorphTimer::setTimeout)>().accept<V8Binding>();
+    needle::Sewable<"clearTimeout", &morph::MorphTimer::clearTimeout, decltype(&morph::MorphTimer::clearTimeout)>().accept<V8Binding>();
+
     journal::Journal<journal::Severity::Info>()<< "Hello " << "able";
     journal::Journal<journal::Severity::Fatal>()<< "Hello " << "able";
 
     JSEngine* engine = new V8Engine();
+    // Order matters
     engine->run({
+        "D:/Projects/able/out/build/x64-debug/Debug/morph-api.js",
         "D:/Projects/able/reacts/dist/reacts.umd.js",
         "D:/Projects/able/out/build/x64-debug/Debug/morph.js",
         "D:/Projects/able/out/build/x64-debug/Debug/journal.js",
-    });
+    });  
+
     std::cout << "Hello, able!\n";
 
     // 初始化 SDL2 窗口信息

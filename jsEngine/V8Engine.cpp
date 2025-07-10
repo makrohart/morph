@@ -151,6 +151,7 @@ bool V8Engine::execute(const std::string& script)
 	}
 	else
 	{
+		// v8::MicrotasksScope::PerformCheckpoint(m_pIsolate);
 		assert(!try_catch.HasCaught());
 		if (!result->IsUndefined())
 		{

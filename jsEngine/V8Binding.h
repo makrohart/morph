@@ -1,6 +1,6 @@
 #pragma once
 
-#include "needle/Needle.h"
+#include "../needle/Needle.h"
 #include "JSType.h"
 #include "v8.h"
 #include "V8Type.h"

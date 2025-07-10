@@ -97,6 +97,7 @@ function useViewModel(vmClass) {
 //   );
 // }
 
+
 function App() {
   journal.log("App function called - component is rendering");
   
@@ -106,24 +107,25 @@ function App() {
   }, []);
 
   return React.createElement(
-    "div",
-    null,
-    React.createElement("h1", null, "Hello"),
-    React.createElement(
-      "button",
-      { onClick: () => journal.log("Clicked!") },
-      "Click Me"
-    )
+    "MorphNode", 
+	null,
+	React.createElement("MorphNode", null),
+	React.createElement("MorphNode", null)
+    // React.createElement("MorphNode", null, "Hello"),
+    // React.createElement(
+    //   "MorphNode",
+    //   { onClick: () => journal.log("Clicked!") },
+    //   "Click Me"
+    // )
   );
 }
 
-const container = {};
-journal.log("About to render App component");
-render(React.createElement(App), container);
-journal.log("Render call completed");
 
+journal.log("render start");
+const rootNode = new MorphNode();
+CustomRenderer.render(React.createElement(App), rootNode);
+journal.log("render end");
 
-var node = new MorphNode();
-var node1 = new MorphNode();
-node.add(node1);
-// node.remove(node1);
+// node1 = new MorphNode();
+// node2 = new MorphNode();
+// node1.add(node2);
