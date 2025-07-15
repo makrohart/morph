@@ -107,26 +107,30 @@ function(add_sll MODULE_NAME)
     endforeach()
 endfunction()
 
-file(GLOB_RECURSE SOURCES
-    "${CMAKE_SOURCE_DIR}/aspectable/*.cpp"
-    "${CMAKE_SOURCE_DIR}/aspectable/*.h"
-    "${CMAKE_SOURCE_DIR}/journal/*.cpp"
-    "${CMAKE_SOURCE_DIR}/journal/*.h"
-    "${CMAKE_SOURCE_DIR}/jsEngine/*.cpp"
-    "${CMAKE_SOURCE_DIR}/jsEngine/*.h"
-    "${CMAKE_SOURCE_DIR}/needle/*.cpp"
-    "${CMAKE_SOURCE_DIR}/needle/*.h"
-    "${CMAKE_SOURCE_DIR}/playable/*.cpp"
-    "${CMAKE_SOURCE_DIR}/playable/*.h"
-    "${CMAKE_SOURCE_DIR}/morph/*.cpp"
-    "${CMAKE_SOURCE_DIR}/morph/*.h"
-    "${CMAKE_SOURCE_DIR}/layout/*.cpp"
-    "${CMAKE_SOURCE_DIR}/layout/*.h"
+set(SOURCE_DIRS 
+    "aspectable"
+    "bridge"
+    "bridge/v8"
+    "journal"
+    "layout"
+    "needle"
+    "morph"           
+    "playable"
 )
+
 file(GLOB_RECURSE EXTRA_FILES
     "${CMAKE_SOURCE_DIR}/journal/*.json"
     "${CMAKE_SOURCE_DIR}/add-ins/*.js"
 )
+
+set(SOURCES "")
+foreach(dir ${SOURCE_DIRS})
+    file(GLOB_RECURSE DIR_SOURCES
+        "${CMAKE_SOURCE_DIR}/${dir}/*.cpp"
+        "${CMAKE_SOURCE_DIR}/${dir}/*.h"
+    )
+    list(APPEND SOURCES ${DIR_SOURCES})
+endforeach()
 
 add_executable(able main.cpp ${SOURCES})
 add_header(nlohmann)
@@ -139,6 +143,6 @@ foreach(extra_file ${EXTRA_FILES})
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${extra_file}"
             "$<TARGET_FILE_DIR:able>"
-        COMMENT "Copying ${extra_file}"
+        COMMENT "Copying ${extra_file}" 
     )
 endforeach()

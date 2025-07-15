@@ -16,9 +16,16 @@ namespace needle
         virtual void visit() = 0;
     };
 
-    template<FixedString name, auto accessor, typename R, typename C>
-        requires GetterSetterPair<decltype(accessor)>
-    struct Needle<name, accessor, R C::*>
+    // Member getter use
+    template<FixedString name, auto getterPtr, typename R, typename C, typename T>
+    struct Needle<name, getterPtr, R(C::*)(), T>
+    {
+        virtual void visit() = 0;
+    };
+
+    // Member setter use
+    template<FixedString name, auto setterPtr, typename R, typename C, typename T>
+    struct Needle<name, setterPtr, void(C::*)(R), T>
     {
         virtual void visit() = 0;
     };

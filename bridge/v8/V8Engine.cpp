@@ -1,8 +1,8 @@
 #include "V8Engine.h"
 
 #include "libplatform/libplatform.h"
-#include "../journal/Journal.h"
-#include "../journal/Severity.h"
+#include "../../journal/Journal.h"
+#include "../../journal/Severity.h"
 #include "V8Type.h"
 
 namespace

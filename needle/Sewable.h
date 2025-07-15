@@ -28,15 +28,25 @@ namespace needle
         }
     };
 
-    // Member property use
- 	template<FixedString name, auto accessor, typename R, typename C>
-        requires GetterSetterPair<decltype(accessor)>
-    struct Sewable<name, accessor, R C::*>
+    // Member getter use
+    template<FixedString name, auto getterPtr, typename R, typename C, typename T>
+    struct Sewable<name, getterPtr, R(C::*)(), T>
     {
         template<template<FixedString, auto, typename, typename...> typename... Vs>
         void accept()
         {
-            (Vs<name, accessor, R C::*>().visit(), ...);
+            (Vs<name, getterPtr, R(C::*)(), T>().visit(), ...);
+        }
+    };
+
+    // Member setter use
+    template<FixedString name, auto setterPtr, typename R, typename C, typename T>
+    struct Sewable<name, setterPtr, void(C::*)(R), T>
+    {
+        template<template<FixedString, auto, typename, typename...> typename... Vs>
+        void accept()
+        {
+            (Vs<name, setterPtr, void(C::*)(R), T>().visit(), ...);
         }
     };
 

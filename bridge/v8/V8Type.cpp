@@ -15,10 +15,18 @@ void V8Type::addMethod(const std::string& name, v8::FunctionCallback callback)
 
 void V8Type::addProperty(const std::string& name, v8::AccessorGetterCallback getterCallback /*= nullptr*/, v8::AccessorSetterCallback setterCallback /*= nullptr*/)
 {
-    if (m_accessors.find(name) != m_accessors.cend())
+    if (m_accessors.find(name) == m_accessors.cend())
+    {
+        m_accessors[name] = std::make_pair(getterCallback, setterCallback);
         return;
+    }
 
-    m_accessors[name] = std::make_pair(getterCallback, setterCallback);
+    if (getterCallback)
+        m_accessors[name].first = getterCallback;
+
+    if (setterCallback)
+        m_accessors[name].second = setterCallback;
+
 }
 
 v8::FunctionCallback V8Type::getConstructor() const

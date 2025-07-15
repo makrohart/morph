@@ -15,7 +15,7 @@ namespace morph
     {
         MorphTimer() : aspectable::Aspectable<aspectable::Aspect>(this) {}
 
-        int setTimeout(std::function<void()> callback, const int delayMS)
+        int setTimeout(const std::function<void()>& callback, const int delayMS)
         {
             const int id = m_nextId++;
             m_callbacks[id] = callback;

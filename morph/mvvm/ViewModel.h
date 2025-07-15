@@ -17,7 +17,7 @@ namespace mvvm
 
         virtual ~ViewModel() = default;
 
-        inline void onPropertyChanged(const std::string propertyName, PropertyChangedEventHandler eventHandler)
+        inline void onPropertyChanged(const std::string& propertyName, const PropertyChangedEventHandler& eventHandler)
         {
             if (m_eventHandlers.find(propertyName) == m_eventHandlers.cend())
                 m_eventHandlers[propertyName] = std::move(std::list<PropertyChangedEventHandler>());
@@ -25,7 +25,7 @@ namespace mvvm
             m_eventHandlers[propertyName].push_back(eventHandler);
         }
 
-        inline void notifyPropertyChanged(std::string propertyName)
+        inline void notifyPropertyChanged(const std::string& propertyName)
         {
             if (m_eventHandlers.find(propertyName) == m_eventHandlers.cend())
                 return;
@@ -49,7 +49,7 @@ namespace mvvm
         }
 
         std::string getStringField() { return m_stringField; }
-        void setStringField(const std::string value)
+        void setStringField(const std::string& value)
         { 
             if (value != m_stringField)
             {

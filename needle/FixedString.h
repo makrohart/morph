@@ -25,4 +25,9 @@ namespace needle
         requires MemberFunctionPointer<decltype(p.first)>;
         requires MemberFunctionPointer<decltype(p.second)>;
     };
+
+    struct Type{};
+    struct Property{};
+    struct Method{};
+    struct Field{};
 }

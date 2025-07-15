@@ -36,7 +36,7 @@ namespace journal
             return  *this;
         }
 
-        void log(std::string str)
+        void log(const std::string& str)
         {
             // Do not invoke log function inside, it will leads to stack overflow
             Journal<severity>() << str.c_str();

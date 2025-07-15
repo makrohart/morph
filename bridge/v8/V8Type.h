@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "JSType.h"
+#include "../JSType.h"
 #include "v8.h"
 
 class V8Type : public JSType
