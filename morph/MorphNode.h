@@ -10,103 +10,18 @@
 
 namespace morph
 {
-    struct MorphNode : virtual MorphNodeStyle
+    struct MorphNode : MorphNodeStyle
     {
-        MorphNode() : aspectable::Aspectable<aspectable::Aspect>(this)
-        {
-            if (!MorphNode::getRootNode())
-                MorphNode::setRootNode(this);         
-        }
+        MorphNode();
 
-        ~MorphNode()
-        {
-            // DFS - safely delete children
-            for (auto& pChild : m_pChildren)
-            {
-                if (pChild)
-                {
-                    // Remove from Yoga layout first
-                    YGNodeRemoveChild(getYGNodeRef().get(), pChild->getYGNodeRef().get());
-                    delete pChild;
-                }
-            }
-            m_pChildren.clear();
-        }
+        ~MorphNode() override;
 
-        void add(MorphNode* pChild)  
-        {
-            if (!pChild)
-                return;
-            
-            if (m_pChildren.find(pChild) != m_pChildren.cend())
-                return;
-                
-            auto parentNode = getYGNodeRef();
-            auto childNode = pChild->getYGNodeRef();
-            
-            if (!parentNode || !childNode) {
-                return;
-            }
-            
-            auto child = facebook::yoga::resolveRef(childNode.get());
-            child->setOwner(nullptr);
-            
-            size_t index = m_pChildren.size();
-            m_pChildren.insert(pChild);
-            pChild->m_pParent = this;
-            YGNodeInsertChild(parentNode.get(), childNode.get(), index);
-        }
+        void add(MorphNode* pChild);
 
-        void remove(MorphNode* pChild)
-        {
-            if (!pChild)
-                return;
+        void remove(MorphNode* pChild);
 
-            if (m_pChildren.find(pChild) == m_pChildren.cend())
-                return;
-
-            // Remove from Yoga layout first
-            auto parentNode = getYGNodeRef();
-            auto childNode = pChild->getYGNodeRef();
-            
-            if (parentNode && childNode) {
-                YGNodeRemoveChild(parentNode.get(), childNode.get());
-            }
-            
-            // Remove from our set
-            m_pChildren.erase(pChild);
-            
-            // Clear parent reference
-            pChild->m_pParent = nullptr;
-        }
-
-        void render(SDL_Renderer *renderer, int offsetX, int offsetY)
-        {
-            YGNodeRef yogaNode = getYGNodeRef().get();
-
-            double l = YGNodeLayoutGetLeft(yogaNode);
-            double t = YGNodeLayoutGetTop(yogaNode);
-            double r = YGNodeLayoutGetRight(yogaNode);
-            double b = YGNodeLayoutGetBottom(yogaNode);
-            double w = YGNodeLayoutGetWidth(yogaNode);
-            double h = YGNodeLayoutGetHeight(yogaNode);
-            const auto [top, right, bottom, left] = getMargin();
-
-            // 绘制背景
-            auto backgroundColor = getBackgroundColor();
-            SDL_SetRenderDrawColor(renderer, backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
-            SDL_FRect rect {(float)offsetX, (float)offsetY, (float)(w - l - r), (float)(h - t - b)};
-            SDL_RenderFillRect(renderer, &rect);
-
-            // 绘制边框
-            auto borderColor = getBorderColor();
-            SDL_SetRenderDrawColor(renderer, borderColor[0], borderColor[1], borderColor[2], borderColor[3]);
-            SDL_RenderRect(renderer, &rect);
-
-            // 递归渲染子节点
-            for (auto& pChild : m_pChildren)
-                pChild->render(renderer, offsetX, offsetY);
-        }
+        void render(SDL_Renderer *renderer, int offsetX, int offsetY);
+        virtual void onRender(SDL_Renderer *renderer, int& offsetX, int& offsetY);
 
         static MorphNode* getRootNode();
         

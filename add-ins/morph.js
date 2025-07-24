@@ -4,16 +4,20 @@
 
     createNode: (type) => {
       new Journal().log("createNode");
-      return new MorphNode();
+      if (type === "button")
+        return new MorphButtonNode();
+      else if (type === "div")
+        return new MorphNode();
     },
 
     addNode: (parent, child) => {
       new Journal().log("addNode");
       // TODO: support more node other tham MorphNode
-      if (!child instanceof MorphNode || !parent instanceof MorphNode)
-        return;
-
-      parent.add(child);
+      if (child instanceof MorphNode || child instanceof MorphButtonNode)
+      {
+          if (parent instanceof MorphNode || parent instanceof MorphButtonNode)
+            parent.add(child);
+      }
     },
 
     removeNode: (parent, child) => {
@@ -104,18 +108,19 @@
      */
     createInstance: function(type, props, rootContainerInstance, hostContext) {
       new Journal().log("createInstance");
-      const node = HostEnvironment.createNode(type);
+      node = HostEnvironment.createNode(type);
       Object.keys(props).forEach((key) => {
         if (key === "children") return;
-        // TODO: uncomment it when host env support style and event
-        // if (key.startsWith("on") && typeof props[key] === "function") {
-        //   const eventType = key.substring(2).toLowerCase();
-        //   hostEnvironment.addEventListener(node, eventType, props[key]);
-        // } else if (key === "style") {
-        //   Object.entries(props[key]).forEach(([styleKey, value]) => {
-        //     hostEnvironment.setAttribute(node, styleKey, value as string);
-        //   });
-        // }
+        if (key.startsWith("on") && typeof props[key] === "function") {
+		      // TODO: uncomment it when host env support event
+          // const eventType = key.substring(2).toLowerCase();
+          // hostEnvironment.addEventListener(node, eventType, props[key]);
+        } else if (key === "style") {
+          Object.entries(props[key]).forEach(([styleKey, value]) => {
+            if (node instanceof MorphNode || node instanceof MorphButtonNode)
+              node.setProperty(styleKey, value);
+          });
+        }
       });
       return node;
     },

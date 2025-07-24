@@ -9,6 +9,9 @@ namespace aspectable
     {
         virtual ~Aspectable() = default;
         
+        // TODO: Originally, the derived class that is about to be aspected should virtual inherit its
+        // based class and explicit call Aspectable's constructor for the appropriate T. But virtual
+        // inheritance somehow does not work well with V8. Therefore, it is broken now.
         // Constructor
         template<typename T, typename... Args>  
         explicit Aspectable(T* pSelf, Args&&... args)

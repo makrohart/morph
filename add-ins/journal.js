@@ -101,25 +101,37 @@ function useViewModel(vmClass) {
 function App() {
   journal.log("App function called - component is rendering");
   
+  var {intField, stringField} = useViewModel(ViewModel);
+	console.log("App after useViewModel");
+	intField = 10;
+
   // Use useEffect to log when component mounts
   React.useEffect(() => {
     journal.log("App component mounted - useEffect called");
   }, []);
 
   return React.createElement(
-    "MorphNode", 
-	null,
-	React.createElement("MorphNode", null),
-	React.createElement("MorphNode", null)
-    // React.createElement("MorphNode", null, "Hello"),
-    // React.createElement(
-    //   "MorphNode",
-    //   { onClick: () => journal.log("Clicked!") },
-    //   "Click Me"
-    // )
+    "div", 
+    {
+      style: {
+        alignItems: '8',
+        justifyContent: '5',
+        flexDirection: '3',
+      }
+    },
+    React.createElement(
+      "button",
+      {
+			  onClick: () => console.log("Clicked!"),
+			  style: {
+          widthPercent: "50",
+          heightPercent: "50",
+        },
+      },
+      "Click Me"
+    )
   );
 }
-
 
 journal.log("render start");
 const rootNode = new MorphNode();

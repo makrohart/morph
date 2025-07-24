@@ -9,6 +9,7 @@
 #include "needle/Sewable.h"
 #include "needle/FixedString.h"
 #include "morph/mvvm/ViewModel.h"
+#include "morph/MorphButtonNode.h"
 #include "morph/MorphNode.h"
 #include "morph/MorphTimer.h"
 
@@ -52,6 +53,13 @@ int main(int argc, const char* argv[])
     needle::Sewable<"MorphNode", nullptr, morph::MorphNode>().accept<V8Bridge>();
     needle::Sewable<"add", &morph::MorphNode::add, decltype(&morph::MorphNode::add)>().accept<V8Bridge>();
     needle::Sewable<"remove", &morph::MorphNode::remove, decltype(&morph::MorphNode::remove)>().accept<V8Bridge>();
+    needle::Sewable<"setProperty", &morph::MorphNode::setProperty, decltype(&morph::MorphNode::setProperty)>().accept<V8Bridge>();
+
+    needle::Sewable<"MorphButtonNode", nullptr, morph::MorphButtonNode>().accept<V8Bridge>();
+    needle::Sewable<"add", &morph::MorphButtonNode::add, decltype(&morph::MorphButtonNode::add)>().accept<V8Bridge>();
+    needle::Sewable<"remove", &morph::MorphButtonNode::remove, decltype(&morph::MorphButtonNode::remove)>().accept<V8Bridge>();
+    needle::Sewable<"setProperty", &morph::MorphButtonNode::setProperty, decltype(&morph::MorphButtonNode::setProperty)>().accept<V8Bridge>();
+
 
     needle::Sewable<"MorphTimer", nullptr, morph::MorphTimer>().accept<V8Bridge>();
     needle::Sewable<"setTimeout", &morph::MorphTimer::setTimeout, decltype(&morph::MorphTimer::setTimeout)>().accept<V8Bridge>();

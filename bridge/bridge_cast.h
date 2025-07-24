@@ -60,6 +60,15 @@ struct bridge_cast<Target(const v8::Local<v8::Value>&)>
 };
 
 template<>
+struct bridge_cast<double(const v8::Local<v8::Value>&)>
+{
+    double operator()(const v8::Local<v8::Value>& source)
+    {
+        source->NumberValue(v8::Isolate::GetCurrent()->GetCurrentContext()).ToChecked();
+    }
+};
+
+template<>
 struct bridge_cast<char(const v8::Local<v8::Value>&)>
 {
     char operator()(const v8::Local<v8::Value>& source)
