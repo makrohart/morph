@@ -111,8 +111,20 @@ int main(int argc, const char* argv[])
     while (running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
+            if (event.type == SDL_EVENT_QUIT)
+            {
                 running = false;  // 用户点击关闭按钮
+            }
+            else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+            {
+                int x = event.button.x;
+                int y = event.button.y; 
+
+                morph::MorphNode* pRootNode = morph::MorphNode::getRootNode();
+                if (pRootNode)
+                {
+                    morph::MorphNode* selectedNode =  pRootNode->getSelectedNode(x, y);
+                }
             }
         }
 

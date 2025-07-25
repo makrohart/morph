@@ -23,8 +23,9 @@ namespace morph
         void render(SDL_Renderer *renderer, int offsetX, int offsetY);
         virtual void onRender(SDL_Renderer *renderer, int& offsetX, int& offsetY);
 
-        static MorphNode* getRootNode();
-        
+        virtual MorphNode* getSelectedNode(int x, int y);
+
+        static MorphNode* getRootNode();    
         static void setRootNode(MorphNode* node);
         
         private:

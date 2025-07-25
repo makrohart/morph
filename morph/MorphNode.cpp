@@ -122,6 +122,33 @@ namespace morph
             pChild->render(renderer, offsetX, offsetY);
     }
 
+    MorphNode* MorphNode::getSelectedNode(int x, int y)
+    {
+        YGNodeRef yogaNode = getYGNodeRef().get();
+
+        double width = YGNodeLayoutGetWidth(yogaNode);
+        double height = YGNodeLayoutGetHeight(yogaNode);
+        double top = YGNodeLayoutGetTop(yogaNode);
+        double left = YGNodeLayoutGetLeft(yogaNode);       
+        double button = top + height;
+        double right = width + width;
+
+        if (x < left || x > right || y < top || y > button)
+            return nullptr;
+
+        x -= left;
+        y -= top;
+
+        for (auto& pChild : m_pChildren)
+        {
+            MorphNode* pFind = pChild->getSelectedNode(x, y);
+            if (pFind)
+                return pFind;
+        }
+
+        return this;
+    }
+
     MorphNode* morph::MorphNode::getRootNode()
     {
         return s_rootNode;
