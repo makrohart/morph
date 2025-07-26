@@ -59,6 +59,7 @@ int main(int argc, const char* argv[])
     needle::Sewable<"add", &morph::MorphButtonNode::add, decltype(&morph::MorphButtonNode::add)>().accept<V8Bridge>();
     needle::Sewable<"remove", &morph::MorphButtonNode::remove, decltype(&morph::MorphButtonNode::remove)>().accept<V8Bridge>();
     needle::Sewable<"setProperty", &morph::MorphButtonNode::setProperty, decltype(&morph::MorphButtonNode::setProperty)>().accept<V8Bridge>();
+    needle::Sewable<"on", &morph::MorphButtonNode::on, decltype(&morph::MorphButtonNode::on)>().accept<V8Bridge>();
 
 
     needle::Sewable<"MorphTimer", nullptr, morph::MorphTimer>().accept<V8Bridge>();
@@ -124,6 +125,7 @@ int main(int argc, const char* argv[])
                 if (pRootNode)
                 {
                     morph::MorphNode* selectedNode =  pRootNode->getSelectedNode(x, y);
+                    selectedNode->raise("onClick", eventable::EventArgs{});
                 }
             }
         }

@@ -122,7 +122,7 @@ function App() {
     React.createElement(
       "button",
       {
-			  onClick: () => console.log("Clicked!"),
+			  onClick: () => { journal.log("Clicked! Background color changed!"); },
 			  style: {
           widthPercent: "50",
           heightPercent: "50",

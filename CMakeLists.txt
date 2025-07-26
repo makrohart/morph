@@ -111,6 +111,7 @@ set(SOURCE_DIRS
     "aspectable"
     "bridge"
     "bridge/v8"
+    "eventable"
     "journal"
     "layout"
     "needle"

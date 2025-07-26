@@ -6,6 +6,7 @@
 #include <type_traits>
 
 #include "v8.h"
+#include "../eventable/EventArgs.h"
 
 template<typename T>
 struct bridge_cast;
@@ -139,6 +140,35 @@ struct bridge_cast<std::function<void()>&(const v8::Local<v8::Value>&)>
 
     private:
     std::function<void()>* m_pFunc;
+};
+
+template<>
+struct bridge_cast<std::function<void(eventable::EventArgs)>&(const v8::Local<v8::Value>&)>
+{
+    std::function<void(eventable::EventArgs)>& operator()(const v8::Local<v8::Value>& source)
+    {
+        if (!source->IsFunction())
+            static_assert("Expected a function");
+
+        v8::Local<v8::Function> func = source.As<v8::Function>();
+        auto persistent = std::make_shared<v8::Persistent<v8::Function>>(v8::Isolate::GetCurrent(), func);
+        auto persistent_ctx = std::make_shared<v8::Persistent<v8::Context>>(v8::Isolate::GetCurrent(), v8::Isolate::GetCurrent()->GetCurrentContext());
+        // Heap allocated as bridge_cast might be used as rvalue, the returned reference has stable no address
+        m_pFunc = new std::function<void(eventable::EventArgs)>([persistent, pIsolate = v8::Isolate::GetCurrent(), persistent_ctx](eventable::EventArgs eventArgs) {
+            v8::Isolate::Scope isolate_scope(pIsolate);
+            v8::HandleScope scope(pIsolate);
+            v8::Local<v8::Context> context = persistent_ctx->Get(pIsolate);
+            v8::Context::Scope context_scope(context);
+
+            auto localFunc = persistent->Get(pIsolate);
+            localFunc->Call(context, v8::Undefined(pIsolate), 0, nullptr);
+        });
+
+        return *m_pFunc;
+    }
+
+    private:
+    std::function<void(eventable::EventArgs)>* m_pFunc;
 };
 
 template<typename Target>

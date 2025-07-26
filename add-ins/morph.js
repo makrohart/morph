@@ -112,9 +112,8 @@
       Object.keys(props).forEach((key) => {
         if (key === "children") return;
         if (key.startsWith("on") && typeof props[key] === "function") {
-		      // TODO: uncomment it when host env support event
-          // const eventType = key.substring(2).toLowerCase();
-          // hostEnvironment.addEventListener(node, eventType, props[key]);
+          if (node instanceof MorphNode || node instanceof MorphButtonNode)
+              node.on(key, props[key]);
         } else if (key === "style") {
           Object.entries(props[key]).forEach(([styleKey, value]) => {
             if (node instanceof MorphNode || node instanceof MorphButtonNode)
