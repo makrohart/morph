@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(able VERSION 0.1.0 LANGUAGES C CXX)
+project(morph VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,7 +15,7 @@ function(add_header MODULE_NAME)
 
     # 2. 添加头文件目录
     if(EXISTS "${MODULE_ROOT_DIR}/include")
-        target_include_directories(able PRIVATE "${MODULE_ROOT_DIR}/include")
+        target_include_directories(morph PRIVATE "${MODULE_ROOT_DIR}/include")
     endif()
 endfunction()
 
@@ -30,7 +30,7 @@ function(add_dll MODULE_NAME)
         message(FATAL_ERROR "Dynamic library directory not found: ${MODULE_LIB_DIR}")
     endif()
 
-    target_link_directories(able PRIVATE ${MODULE_LIB_DIR})
+    target_link_directories(morph PRIVATE ${MODULE_LIB_DIR})
     
     # 自动查找库文件
     if(WIN32)
@@ -44,7 +44,7 @@ function(add_dll MODULE_NAME)
 
     # 链接所有找到的库
     foreach(lib ${LIBS})
-        target_link_libraries(able PRIVATE ${lib})
+        target_link_libraries(morph PRIVATE ${lib})
     endforeach()
 
     # 4. Windows平台特殊处理（复制运行时文件）
@@ -63,10 +63,10 @@ function(add_dll MODULE_NAME)
         foreach(type ${file_types})
             file(GLOB files "${MODULE_BIN_DIR}/${type}")
             foreach(file ${files})
-                add_custom_command(TARGET able POST_BUILD
+                add_custom_command(TARGET morph POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
                         "${file}"
-                        "$<TARGET_FILE_DIR:able>"
+                        "$<TARGET_FILE_DIR:morph>"
                     COMMENT "Copying ${file}"
                 )
             endforeach()
@@ -85,7 +85,7 @@ function(add_sll MODULE_NAME)
         message(FATAL_ERROR "Static library directory not found: ${MODULE_LIB_DIR}")
     endif()
 
-    target_link_directories(able PRIVATE ${MODULE_LIB_DIR})
+    target_link_directories(morph PRIVATE ${MODULE_LIB_DIR})
     
     # 自动查找静态库文件
     if(WIN32)
@@ -103,7 +103,7 @@ function(add_sll MODULE_NAME)
 
     # 链接所有找到的静态库
     foreach(lib ${LIBS})
-        target_link_libraries(able PRIVATE ${lib})
+        target_link_libraries(morph PRIVATE ${lib})
     endforeach()
 endfunction()
 
@@ -133,17 +133,17 @@ foreach(dir ${SOURCE_DIRS})
     list(APPEND SOURCES ${DIR_SOURCES})
 endforeach()
 
-add_executable(able main.cpp ${SOURCES})
+add_executable(morph main.cpp ${SOURCES})
 add_header(nlohmann)
 add_dll(v8 "*.dll" "*.pdb" "*.dat" "*.bin")
 add_dll(sdl "*.dll" "*.pdb")
 add_sll(yoga)
 
 foreach(extra_file ${EXTRA_FILES})
-    add_custom_command(TARGET able POST_BUILD
+    add_custom_command(TARGET morph POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${extra_file}"
-            "$<TARGET_FILE_DIR:able>"
+            "$<TARGET_FILE_DIR:morph>"
         COMMENT "Copying ${extra_file}" 
     )
 endforeach()

@@ -66,19 +66,19 @@ int main(int argc, const char* argv[])
     needle::Sewable<"setTimeout", &morph::MorphTimer::setTimeout, decltype(&morph::MorphTimer::setTimeout)>().accept<V8Bridge>();
     needle::Sewable<"clearTimeout", &morph::MorphTimer::clearTimeout, decltype(&morph::MorphTimer::clearTimeout)>().accept<V8Bridge>();
 
-    journal::Journal<journal::Severity::Info>()<< "Hello " << "able";
-    journal::Journal<journal::Severity::Fatal>()<< "Hello " << "able";
+    journal::Journal<journal::Severity::Info>()<< "Hello " << "morph";
+    journal::Journal<journal::Severity::Fatal>()<< "Hello " << "morph";
 
     JSEngine* engine = new V8Engine();
     // Order matters
     engine->run({
-        "D:/Projects/able/out/build/x64-debug/Debug/morph-api.js",
-        "D:/Projects/able/reacts/dist/reacts.umd.js",
-        "D:/Projects/able/out/build/x64-debug/Debug/morph.js",
-        "D:/Projects/able/out/build/x64-debug/Debug/journal.js",
+        "D:/Projects/morph/out/build/x64-debug/Debug/morph-api.js",
+        "D:/Projects/morph/reacts/dist/reacts.umd.js",
+        "D:/Projects/morph/out/build/x64-debug/Debug/morph.js",
+        "D:/Projects/morph/out/build/x64-debug/Debug/journal.js",
     });  
 
-    std::cout << "Hello, able!\n";
+    std::cout << "Hello, morph!\n";
 
     // 初始化 SDL2 窗口信息
     if (!SDL_Init(SDL_INIT_VIDEO))
@@ -88,7 +88,7 @@ int main(int argc, const char* argv[])
     }
 
     // 2. 创建窗口
-    SDL_Window* window = SDL_CreateWindow("able", 1000, 600, SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("morph", 1000, 600, SDL_WINDOW_RESIZABLE);
 
     if (!window)
     {
