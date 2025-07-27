@@ -8,7 +8,7 @@
 #include "bridge/v8/V8Engine.h"
 #include "needle/Sewable.h"
 #include "needle/FixedString.h"
-#include "morph/mvvm/ViewModel.h"
+#include "add-ins/ViewModel.h"
 #include "morph/MorphButtonNode.h"
 #include "morph/MorphNode.h"
 #include "morph/MorphTimer.h"

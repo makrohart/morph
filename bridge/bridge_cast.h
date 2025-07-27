@@ -112,6 +112,9 @@ struct bridge_cast<std::string&((const v8::Local<v8::Value>&))>
         return *m_str;
     }
 
+    // Let memory leak here as it is passed as referenced arguement 
+    // ~bridge_cast() { if (m_str) delete m_str; }
+
     private:
     std::string* m_str;
 };
@@ -137,6 +140,9 @@ struct bridge_cast<std::function<void()>&(const v8::Local<v8::Value>&)>
 
         return *m_pFunc;
     }
+
+    // Let memory leak here as it is passed as referenced arguement 
+    // ~bridge_cast() { if (m_pFunc) delete m_pFunc; }
 
     private:
     std::function<void()>* m_pFunc;
@@ -166,6 +172,9 @@ struct bridge_cast<std::function<void(eventable::EventArgs)>&(const v8::Local<v8
 
         return *m_pFunc;
     }
+
+    // Let memory leak here as it is passed as referenced arguement 
+    // ~bridge_cast() { if (m_pFunc) delete m_pFunc; }
 
     private:
     std::function<void(eventable::EventArgs)>* m_pFunc;

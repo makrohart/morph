@@ -5,7 +5,7 @@
 #include <list>
 #include <unordered_map>
 
-#include "../../aspectable/Aspectable.h"
+#include "aspectable/Aspectable.h"
 
 namespace mvvm
 {

@@ -108,6 +108,7 @@ function(add_sll MODULE_NAME)
 endfunction()
 
 set(SOURCE_DIRS 
+    "add-ins"
     "aspectable"
     "bridge"
     "bridge/v8"
@@ -121,7 +122,7 @@ set(SOURCE_DIRS
 
 file(GLOB_RECURSE EXTRA_FILES
     "${CMAKE_SOURCE_DIR}/journal/*.json"
-    "${CMAKE_SOURCE_DIR}/add-ins/*.js"
+    "${CMAKE_SOURCE_DIR}/add-ons/*.js"
 )
 
 set(SOURCES "")
