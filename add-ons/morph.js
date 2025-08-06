@@ -1,31 +1,35 @@
   const {React, ReactDOM, Scheduler, ReactReconciler} = Reacts;
 
   const HostEnvironment = {
+    isValidNode: (node) =>{
+      return node instanceof MorphNode ||
+             node instanceof MorphDivNode ||
+             node instanceof MorphButtonNode ||
+             node instanceof MorphWindowNode;
+    },
 
     createNode: (type) => {
       new Journal().log("createNode");
       if (type === "button")
         return new MorphButtonNode();
       else if (type === "div")
-        return new MorphNode();
+        return new MorphDivNode();
+      else if (type === "window")
+        return new MorphWindowNode();
     },
 
     addNode: (parent, child) => {
       new Journal().log("addNode");
-      // TODO: support more node other tham MorphNode
-      if (child instanceof MorphNode || child instanceof MorphButtonNode)
-      {
-          if (parent instanceof MorphNode || parent instanceof MorphButtonNode)
-            parent.add(child);
-      }
+      // TODO: support more node other than MorphNode
+      if (HostEnvironment.isValidNode(child) && HostEnvironment.isValidNode(parent))
+        parent.add(child);
     },
 
     removeNode: (parent, child) => {
       new Journal().log("removeNode");
-      // TODO: support more node other tham MorphNode
-      if (child instanceof MorphNode || parent instanceof MorphNode)
-        return;
-      parent.remove(child);
+      // TODO: support more node other than MorphNode
+      if (HostEnvironment.isValidNode(child) && HostEnvironment.isValidNode(parent))
+        parent.remove(child);
     },
 
   }
@@ -112,11 +116,11 @@
       Object.keys(props).forEach((key) => {
         if (key === "children") return;
         if (key.startsWith("on") && typeof props[key] === "function") {
-          if (node instanceof MorphNode || node instanceof MorphButtonNode)
+          if (HostEnvironment.isValidNode(node))
               node.on(key, props[key]);
         } else if (key === "style") {
           Object.entries(props[key]).forEach(([styleKey, value]) => {
-            if (node instanceof MorphNode || node instanceof MorphButtonNode)
+            if (HostEnvironment.isValidNode(node))
               node.setProperty(styleKey, value);
           });
         }

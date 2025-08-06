@@ -88,16 +88,6 @@ function useViewModel(vmClass) {
   return { ...proxyState, ...commands };
 }
 
-// function App() {
-//   return (
-//     <div>
-//       <h1>Hello</h1>
-//       <button onClick={() => console.log("Clicked!")}>Click Me</button>
-//     </div>
-//   );
-// }
-
-
 function App() {
   journal.log("App function called - component is rendering");
   
@@ -111,33 +101,38 @@ function App() {
   }, []);
 
   return React.createElement(
-    "div", 
+    "window",
     {
       style: {
-        alignItems: '8',
-        justifyContent: '5',
-        flexDirection: '3',
+        width: '1000',
+        height: '600',
       }
     },
     React.createElement(
-      "button",
+      "div", 
       {
-			  onClick: () => { journal.log("Clicked! Background color changed!"); },
-			  style: {
-          widthPercent: "50",
-          heightPercent: "50",
-        },
+        style: {
+          alignItems: '8',
+          justifyContent: '5',
+          flexDirection: '3',
+        }
       },
-      "Click Me"
-    )
+      React.createElement(
+        "button",
+        {
+          onClick: () => { journal.log("Clicked! Background color changed!"); },
+          style: {
+            widthPercent: "50",
+            heightPercent: "50",
+          },
+        },
+        "Click Me"
+      )
+    )  
   );
 }
 
 journal.log("render start");
-const rootNode = new MorphNode();
-CustomRenderer.render(React.createElement(App), rootNode);
+index_html = new MorphNode();
+CustomRenderer.render(React.createElement(App), index_html);
 journal.log("render end");
-
-// node1 = new MorphNode();
-// node2 = new MorphNode();
-// node1.add(node2);

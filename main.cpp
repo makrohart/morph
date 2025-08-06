@@ -10,7 +10,9 @@
 #include "needle/FixedString.h"
 #include "add-ins/ViewModel.h"
 #include "morph/MorphButtonNode.h"
+#include "morph/MorphDivNode.h"
 #include "morph/MorphNode.h"
+#include "morph/MorphWindowNode.h"
 #include "morph/MorphTimer.h"
 
 struct A : public aspectable::Aspectable<aspectable::Aspect>
@@ -55,6 +57,16 @@ int main(int argc, const char* argv[])
     needle::Sewable<"remove", &morph::MorphNode::remove, decltype(&morph::MorphNode::remove)>().accept<V8Bridge>();
     needle::Sewable<"setProperty", &morph::MorphNode::setProperty, decltype(&morph::MorphNode::setProperty)>().accept<V8Bridge>();
 
+    needle::Sewable<"MorphDivNode", nullptr, morph::MorphDivNode>().accept<V8Bridge>();
+    needle::Sewable<"add", &morph::MorphDivNode::add, decltype(&morph::MorphDivNode::add)>().accept<V8Bridge>();
+    needle::Sewable<"remove", &morph::MorphDivNode::remove, decltype(&morph::MorphDivNode::remove)>().accept<V8Bridge>();
+    needle::Sewable<"setProperty", &morph::MorphDivNode::setProperty, decltype(&morph::MorphDivNode::setProperty)>().accept<V8Bridge>();
+
+    needle::Sewable<"MorphWindowNode", nullptr, morph::MorphWindowNode>().accept<V8Bridge>();
+    needle::Sewable<"add", &morph::MorphWindowNode::add, decltype(&morph::MorphWindowNode::add)>().accept<V8Bridge>();
+    needle::Sewable<"remove", &morph::MorphWindowNode::remove, decltype(&morph::MorphWindowNode::remove)>().accept<V8Bridge>();
+    needle::Sewable<"setProperty", &morph::MorphWindowNode::setProperty, decltype(&morph::MorphWindowNode::setProperty)>().accept<V8Bridge>();
+
     needle::Sewable<"MorphButtonNode", nullptr, morph::MorphButtonNode>().accept<V8Bridge>();
     needle::Sewable<"add", &morph::MorphButtonNode::add, decltype(&morph::MorphButtonNode::add)>().accept<V8Bridge>();
     needle::Sewable<"remove", &morph::MorphButtonNode::remove, decltype(&morph::MorphButtonNode::remove)>().accept<V8Bridge>();
@@ -87,69 +99,10 @@ int main(int argc, const char* argv[])
         return -1;
     }
 
-    // 2. 创建窗口
-    SDL_Window* window = SDL_CreateWindow("morph", 1000, 600, SDL_WINDOW_RESIZABLE);
-
-    if (!window)
-    {
-        journal::Journal<journal::Severity::Fatal>() << "SDL_CreateWindow error: " << SDL_GetError();
-        SDL_Quit();
-        return -1;
-    }
-
-    // 3. 创建渲染器
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, nullptr);
-
-    if (!renderer) {
-        journal::Journal<journal::Severity::Fatal>() << "SDL_CreateRenderer error: " << SDL_GetError();
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return -1;
-    }
-
-    // 4. 主循环
-    bool running = true;
-    while (running) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT)
-            {
-                running = false;  // 用户点击关闭按钮
-            }
-            else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
-            {
-                int x = event.button.x;
-                int y = event.button.y; 
-
-                morph::MorphNode* pRootNode = morph::MorphNode::getRootNode();
-                if (pRootNode)
-                {
-                    morph::MorphNode* selectedNode =  pRootNode->getSelectedNode(x, y);
-                    selectedNode->raise("onClick", eventable::EventArgs{});
-                }
-            }
-        }
-
-        // 清屏（白色背景）
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderClear(renderer);
-
-        // Render nodes
-        morph::MorphNode* pRootNode = morph::MorphNode::getRootNode();
-        if (pRootNode)
-        {
-            YGNodeCalculateLayout(pRootNode->getYGNodeRef().get(), 1000, 600, YGDirectionLTR);
-            pRootNode->render(renderer, 0, 0);
-        }
-
-        // 更新屏幕
-        SDL_RenderPresent(renderer);
-    }
-
-    // 5. 清理资源
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    // Render nodes
+    morph::MorphNode* pRootNode = morph::MorphNode::getRootNode();
+    SDL_Renderer* pRenderer = nullptr;
+    pRootNode->render(pRenderer, 0, 0);
 
     return 0;
 }

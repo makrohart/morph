@@ -51,14 +51,6 @@ namespace morph
         }
 
         private:
-        static int getNextId()
-        {
-            static int s_id{0};
-            return s_id++;
-        }
-
-        private:
-        int m_id{MorphNode::getNextId()};
         MorphNode* m_pParent = nullptr;
         std::set<MorphNode*> m_pChildren;
         eventable::Eventable m_eventable;
