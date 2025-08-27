@@ -14,6 +14,8 @@ struct V8Bridge : needle::Needle<name, placeholder, C, Args...>
         v8::FunctionCallback callback = [](const v8::FunctionCallbackInfo<v8::Value>& info) {
              v8::Isolate* pIsolate = info.GetIsolate();
 
+            // TODO: the allocated native objects are never released. Memory leak here now.
+            // Need a proper handling here.
             C* pNative = new C(bridge_cast<Args(const v8::Local<v8::Value>&)>{}(info[std::index_sequence_for<Args...>()])...);
             info.This()->SetInternalField(0, v8::External::New(pIsolate, pNative));
         };

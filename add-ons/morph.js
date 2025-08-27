@@ -2,34 +2,34 @@
 
   const HostEnvironment = {
     isValidNode: (node) =>{
-      return node instanceof MorphNode ||
-             node instanceof MorphDivNode ||
-             node instanceof MorphButtonNode ||
-             node instanceof MorphWindowNode;
+      return node instanceof View ||
+             node instanceof DivView ||
+             node instanceof ButtonView ||
+             node instanceof WindowView;
     },
 
     createNode: (type) => {
       new Journal().log("createNode");
       if (type === "button")
-        return new MorphButtonNode();
+        return new ButtonView();
       else if (type === "div")
-        return new MorphDivNode();
+        return new DivView();
       else if (type === "window")
-        return new MorphWindowNode();
+        return new WindowView();
     },
 
     addNode: (parent, child) => {
       new Journal().log("addNode");
-      // TODO: support more node other than MorphNode
+      // TODO: support more node other than View
       if (HostEnvironment.isValidNode(child) && HostEnvironment.isValidNode(parent))
-        parent.add(child);
+        child.addTo(parent);
     },
 
     removeNode: (parent, child) => {
       new Journal().log("removeNode");
-      // TODO: support more node other than MorphNode
+      // TODO: support more node other than View
       if (HostEnvironment.isValidNode(child) && HostEnvironment.isValidNode(parent))
-        parent.remove(child);
+        child.removeFrom(parent);
     },
 
   }
@@ -117,7 +117,7 @@
         if (key === "children") return;
         if (key.startsWith("on") && typeof props[key] === "function") {
           if (HostEnvironment.isValidNode(node))
-              node.on(key, props[key]);
+              node.onEvent(key, props[key]);
         } else if (key === "style") {
           Object.entries(props[key]).forEach(([styleKey, value]) => {
             if (HostEnvironment.isValidNode(node))

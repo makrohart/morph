@@ -9,10 +9,10 @@
 #include "needle/Sewable.h"
 #include "needle/FixedString.h"
 #include "add-ins/ViewModel.h"
-#include "morph/MorphButtonNode.h"
-#include "morph/MorphDivNode.h"
-#include "morph/MorphNode.h"
-#include "morph/MorphWindowNode.h"
+#include "morph/ButtonView.h"
+#include "morph/DivView.h"
+#include "morph/View.h"
+#include "morph/WindowView.h"
 #include "morph/MorphTimer.h"
 
 struct A : public aspectable::Aspectable<aspectable::Aspect>
@@ -52,26 +52,26 @@ int main(int argc, const char* argv[])
     needle::Sewable<"StringField", &mvvm::ViewModel::setStringField, decltype(&mvvm::ViewModel::setStringField), needle::Property>().accept<V8Bridge>();
     needle::Sewable<"addInt", &mvvm::ViewModel::addInt, decltype(&mvvm::ViewModel::addInt)>().accept<V8Bridge>();
 
-    needle::Sewable<"MorphNode", nullptr, morph::MorphNode>().accept<V8Bridge>();
-    needle::Sewable<"add", &morph::MorphNode::add, decltype(&morph::MorphNode::add)>().accept<V8Bridge>();
-    needle::Sewable<"remove", &morph::MorphNode::remove, decltype(&morph::MorphNode::remove)>().accept<V8Bridge>();
-    needle::Sewable<"setProperty", &morph::MorphNode::setProperty, decltype(&morph::MorphNode::setProperty)>().accept<V8Bridge>();
+    needle::Sewable<"View", nullptr, morph::View>().accept<V8Bridge>();
+    needle::Sewable<"addTo", &morph::View::addTo, decltype(&morph::View::addTo)>().accept<V8Bridge>();
+    needle::Sewable<"removeFrom", &morph::View::removeFrom, decltype(&morph::View::removeFrom)>().accept<V8Bridge>();
+    needle::Sewable<"setProperty", &morph::View::setProperty, decltype(&morph::View::setProperty)>().accept<V8Bridge>();
 
-    needle::Sewable<"MorphDivNode", nullptr, morph::MorphDivNode>().accept<V8Bridge>();
-    needle::Sewable<"add", &morph::MorphDivNode::add, decltype(&morph::MorphDivNode::add)>().accept<V8Bridge>();
-    needle::Sewable<"remove", &morph::MorphDivNode::remove, decltype(&morph::MorphDivNode::remove)>().accept<V8Bridge>();
-    needle::Sewable<"setProperty", &morph::MorphDivNode::setProperty, decltype(&morph::MorphDivNode::setProperty)>().accept<V8Bridge>();
+    needle::Sewable<"DivView", nullptr, morph::DivView>().accept<V8Bridge>();
+    needle::Sewable<"addTo", &morph::DivView::addTo, decltype(&morph::DivView::addTo)>().accept<V8Bridge>();
+    needle::Sewable<"removeFrom", &morph::DivView::removeFrom, decltype(&morph::DivView::removeFrom)>().accept<V8Bridge>();
+    needle::Sewable<"setProperty", &morph::DivView::setProperty, decltype(&morph::DivView::setProperty)>().accept<V8Bridge>();
 
-    needle::Sewable<"MorphWindowNode", nullptr, morph::MorphWindowNode>().accept<V8Bridge>();
-    needle::Sewable<"add", &morph::MorphWindowNode::add, decltype(&morph::MorphWindowNode::add)>().accept<V8Bridge>();
-    needle::Sewable<"remove", &morph::MorphWindowNode::remove, decltype(&morph::MorphWindowNode::remove)>().accept<V8Bridge>();
-    needle::Sewable<"setProperty", &morph::MorphWindowNode::setProperty, decltype(&morph::MorphWindowNode::setProperty)>().accept<V8Bridge>();
+    needle::Sewable<"WindowView", nullptr, morph::WindowView>().accept<V8Bridge>();
+    needle::Sewable<"addTo", &morph::WindowView::addTo, decltype(&morph::WindowView::addTo)>().accept<V8Bridge>();
+    needle::Sewable<"removeFrom", &morph::WindowView::removeFrom, decltype(&morph::WindowView::removeFrom)>().accept<V8Bridge>();
+    needle::Sewable<"setProperty", &morph::WindowView::setProperty, decltype(&morph::WindowView::setProperty)>().accept<V8Bridge>();
 
-    needle::Sewable<"MorphButtonNode", nullptr, morph::MorphButtonNode>().accept<V8Bridge>();
-    needle::Sewable<"add", &morph::MorphButtonNode::add, decltype(&morph::MorphButtonNode::add)>().accept<V8Bridge>();
-    needle::Sewable<"remove", &morph::MorphButtonNode::remove, decltype(&morph::MorphButtonNode::remove)>().accept<V8Bridge>();
-    needle::Sewable<"setProperty", &morph::MorphButtonNode::setProperty, decltype(&morph::MorphButtonNode::setProperty)>().accept<V8Bridge>();
-    needle::Sewable<"on", &morph::MorphButtonNode::on, decltype(&morph::MorphButtonNode::on)>().accept<V8Bridge>();
+    needle::Sewable<"ButtonView", nullptr, morph::ButtonView>().accept<V8Bridge>();
+    needle::Sewable<"addTo", &morph::ButtonView::addTo, decltype(&morph::ButtonView::addTo)>().accept<V8Bridge>();
+    needle::Sewable<"removeFrom", &morph::ButtonView::removeFrom, decltype(&morph::ButtonView::removeFrom)>().accept<V8Bridge>();
+    needle::Sewable<"setProperty", &morph::ButtonView::setProperty, decltype(&morph::ButtonView::setProperty)>().accept<V8Bridge>();
+    needle::Sewable<"onEvent", &morph::ButtonView::onEvent, decltype(&morph::ButtonView::onEvent)>().accept<V8Bridge>();
 
 
     needle::Sewable<"MorphTimer", nullptr, morph::MorphTimer>().accept<V8Bridge>();
@@ -92,17 +92,10 @@ int main(int argc, const char* argv[])
 
     std::cout << "Hello, morph!\n";
 
-    // 初始化 SDL2 窗口信息
-    if (!SDL_Init(SDL_INIT_VIDEO))
-    {
-        journal::Journal<journal::Severity::Fatal>() << "SDL_Init error: " << SDL_GetError();
-        return -1;
-    }
-
     // Render nodes
-    morph::MorphNode* pRootNode = morph::MorphNode::getRootNode();
-    SDL_Renderer* pRenderer = nullptr;
-    pRootNode->render(pRenderer, 0, 0);
+    morph::WindowView* pRootWindow = morph::WindowView::getRootWindowView();
+    if (pRootWindow)
+        pRootWindow->show();
 
     return 0;
 }

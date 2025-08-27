@@ -1,0 +1,185 @@
+#include  "WindowView.h"
+
+namespace
+{
+    static morph::WindowView* s_pRootWindowView = nullptr;
+}
+
+namespace morph
+{
+    WindowView::WindowView()
+    {
+        // TODO: This is valid when  V8 binding has memory leak for all native objects
+        if (!WindowView::getRootWindowView())
+            WindowView::setRootWindowView(this);
+    }
+
+    WindowView::~WindowView()
+    {
+        SDL_DestroyRenderer(m_pRenderer);
+        SDL_DestroyWindow(m_pWindow);
+        SDL_Quit();
+    }
+
+    void WindowView::onRender(RendererPtr& renderer, int& offsetX, int& offsetY)
+    {
+        m_pLocalRenderer = renderer;
+        renderer = m_pRenderer;
+        const double width = getProperty("styleWidth");
+        const double height = getProperty("styleHeight");
+        getLayout()->calculate(width, height);
+
+        // 清屏（白色背景）
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderClear(renderer);
+    };
+
+    void WindowView::onRendered(RendererPtr& renderer)
+    {
+        // 更新屏幕
+        SDL_RenderPresent(renderer);
+        renderer = m_pLocalRenderer;
+    }
+
+    void WindowView::addTo(View* pParentView)
+    {              
+        if (!pParentView)
+            return;
+
+        // WindowView will not be added to a View other than WindowView.
+        // It will find the nearest top WindowView based on given View.
+        // A View tree always have a WindowView as root.
+
+        if (WindowView::getRootWindowView() != this)
+        {
+            View* pParent = pParentView;
+            while (pParent)
+            {
+                WindowView* pParentWindowView = dynamic_cast<WindowView*>(pParent);
+                if (pParentWindowView)
+                {
+                    if (pParentWindowView->m_pChildWindows.find(this) != pParentWindowView->m_pChildWindows.cend())
+                    {
+                        pParentWindowView->m_pChildWindows.insert(this);
+                        break;
+                    }
+                }
+                pParent = pParent->getParentView();
+            }  
+        }
+    }
+
+    void WindowView::removeFrom(View* pParentView)
+    {
+        if (!pParentView)
+            return;
+
+        if (m_pParentWindow)
+        {
+            m_pParentWindow->m_pChildWindows.erase(this);
+            m_pParentWindow = nullptr;
+        }
+    }
+
+    WindowView* WindowView::findWindowById(const SDL_WindowID id)
+    {
+        const SDL_WindowID windowId = SDL_GetWindowID(m_pWindow);
+        if (windowId == id)
+            return this;
+
+        WindowView* pWindow = nullptr;
+
+        for (auto& pChildWindow : m_pChildWindows)
+        {
+            pWindow = pChildWindow->findWindowById(id);
+            if (pWindow)
+                break;
+        }
+
+        return pWindow;
+    }
+
+    void WindowView::show()
+    {
+        if (!m_pParentWindow)
+        {
+            // 1. 初始化 SDL2 窗口信息
+            if (!SDL_Init(SDL_INIT_VIDEO))
+            {
+                journal::Journal<journal::Severity::Fatal>() << "SDL_Init error: " << SDL_GetError();
+            }
+        }
+
+        const double width = getProperty("styleWidth");
+        const double height = getProperty("styleHeight");
+
+        // 2. 创建窗口
+        m_pWindow = SDL_CreateWindow("morph", width, height, SDL_WINDOW_RESIZABLE);
+        if (!m_pWindow)
+        {
+            journal::Journal<journal::Severity::Fatal>() << "SDL_CreateWindow error: " << SDL_GetError();
+            SDL_Quit();
+            return;
+        }
+
+        // 3. 创建渲染器
+        SDL_Renderer* renderer = SDL_CreateRenderer(m_pWindow, nullptr);
+        m_pRenderer = renderer;
+        if (!renderer) {
+            journal::Journal<journal::Severity::Fatal>() << "SDL_CreateRenderer error: " << SDL_GetError();
+            SDL_DestroyWindow(m_pWindow);
+            SDL_Quit();
+            return;
+        }
+
+        // 递归渲染子节点
+        for (auto& pChild : m_pChildWindows)
+            pChild->show();
+
+        // Do not enter into loop if it is not top window
+        if (m_pParentWindow)
+            return;
+
+        // 4. 主循环
+        bool running = true;
+        while (running) {
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_EVENT_QUIT)
+                {
+                    running = false;  // 用户点击关闭按钮
+                }
+                else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+                {
+                    WindowView* pWindowView = WindowView::getRootWindowView();
+                    WindowView* pFoundWindowView = pWindowView ? pWindowView->findWindowById(event.button.windowID) : nullptr;
+                    if (pFoundWindowView)
+                    {
+                        int x = event.button.x;
+                        int y = event.button.y; 
+
+                        morph::View* selectedView = pFoundWindowView->getSelectedNode(x, y);
+                        if (selectedView)
+                            selectedView->raiseEvent("onClick", eventable::EventArgs{});
+                    }         
+                }
+            }
+            RendererPtr pRenderer = nullptr;
+            render(pRenderer, 0, 0);
+        }
+    }
+
+    WindowView* WindowView::getRootWindowView()
+    {
+        return s_pRootWindowView;
+    } 
+
+    void WindowView::setRootWindowView(WindowView* pWindowView)
+    {
+        if (s_pRootWindowView)
+            throw std::runtime_error("Root window exsits");
+
+        s_pRootWindowView = pWindowView;
+    }
+
+}

@@ -82,7 +82,8 @@
         "bitset": "cpp",
         "thread": "cpp",
         "mutex": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "random": "cpp"
     },
-    "workbench.editor.wrapTabs": true
+    "workbench.editor.wrapTabs": true,
 }

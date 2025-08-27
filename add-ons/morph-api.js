@@ -31,23 +31,23 @@ clearTimeout= (id) => {
     morphTimer.clearTimeout(id);
 };
 
-// class MorphNode{
+// class View{
 //     constructor()
 //     {
-//         console.log("new MorphNode");
+//         console.log("new View");
 //     }
 
 //     add(node)
 //     {
-//         if (node instanceof MorphNode)
-//             console.log("node instanceof MorphNode");
+//         if (node instanceof View)
+//             console.log("node instanceof View");
 //         else
-//             console.log("not node instanceof MorphNode");
+//             console.log("not node instanceof View");
 //     }
 
 //     remove(node)
 //     {
-//         console.log("MorphNode::remove");
+//         console.log("View::remove");
 //     }
 // }
 

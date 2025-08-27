@@ -11,7 +11,7 @@ namespace eventable
     struct Eventable
     {
 
-        void on(const std::string& event, const std::function<void(EventArgs)>& eventHandler)
+        void onEvent(const std::string& event, const std::function<void(EventArgs)>& eventHandler)
         {
             if (m_events.find(event) == m_events.cend())
                 m_events[event] = Event{};
@@ -19,7 +19,7 @@ namespace eventable
             m_events[event].on(eventHandler);       
         }
 
-        void raise(const std::string& event, const EventArgs& eventArgs)
+        void raiseEvent(const std::string& event, const EventArgs& eventArgs)
         {
             if (m_events.find(event) == m_events.cend())
                 return;

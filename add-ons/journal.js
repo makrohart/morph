@@ -133,6 +133,6 @@ function App() {
 }
 
 journal.log("render start");
-index_html = new MorphNode();
+index_html = new View();
 CustomRenderer.render(React.createElement(App), index_html);
 journal.log("render end");
