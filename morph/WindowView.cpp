@@ -1,5 +1,7 @@
 #include  "WindowView.h"
 
+#include "SDL3_ttf/SDL_ttf.h"
+
 namespace
 {
     static morph::WindowView* s_pRootWindowView = nullptr;
@@ -88,6 +90,12 @@ namespace morph
                 journal::Journal<journal::Severity::Fatal>() << "SDL_Init error: " << SDL_GetError();
                 return;
             }
+
+            if (!TTF_Init())
+            {
+                journal::Journal<journal::Severity::Fatal>() << "TTF_Init error: " << SDL_GetError();
+                return;
+            }         
         }
 
         const double width = getProperty("styleWidth");

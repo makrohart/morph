@@ -35,8 +35,8 @@ function(add_dll MODULE_NAME)
     # 自动查找库文件
     if(WIN32)
         file(GLOB_RECURSE LIBS 
-            "${MODULE_LIB_DIR}/*${MODULE_NAME}*.lib"
-            "${MODULE_LIB_DIR}/*${MODULE_NAME}*.dll.lib"
+            "${MODULE_LIB_DIR}/*.lib"
+            "${MODULE_LIB_DIR}/*.dll.lib"
         )
     else()
         file(GLOB LIBS "${MODULE_LIB_DIR}/*.so" "${MODULE_LIB_DIR}/*.dylib")
@@ -138,6 +138,7 @@ add_executable(morph main.cpp ${SOURCES})
 add_header(nlohmann)
 add_dll(v8 "*.dll" "*.pdb" "*.dat" "*.bin")
 add_dll(sdl "*.dll" "*.pdb")
+add_dll(sdl_ttf "*.dll" "*.pdb")
 add_sll(yoga)
 
 foreach(extra_file ${EXTRA_FILES})
