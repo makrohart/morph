@@ -7,12 +7,7 @@ namespace
 
 namespace morph
 {
-    WindowView::WindowView()
-    {
-        // TODO: This is valid when  V8 binding has memory leak for all native objects
-        if (!WindowView::getRootWindowView())
-            WindowView::setRootWindowView(this);
-    }
+    WindowView::WindowView() {}
 
     WindowView::~WindowView()
     {
@@ -47,25 +42,12 @@ namespace morph
             return;
 
         // WindowView will not be added to a View other than WindowView.
-        // It will find the nearest top WindowView based on given View.
         // A View tree always have a WindowView as root.
 
-        if (WindowView::getRootWindowView() != this)
+        if (WindowView* pWindowView = WindowView::getRootWindowView(); pWindowView != this)
         {
-            View* pParent = pParentView;
-            while (pParent)
-            {
-                WindowView* pParentWindowView = dynamic_cast<WindowView*>(pParent);
-                if (pParentWindowView)
-                {
-                    if (pParentWindowView->m_pChildWindows.find(this) != pParentWindowView->m_pChildWindows.cend())
-                    {
-                        pParentWindowView->m_pChildWindows.insert(this);
-                        break;
-                    }
-                }
-                pParent = pParent->getParentView();
-            }  
+            m_pChildWindowView = pWindowView;
+            WindowView::setRootWindowView(this);
         }
     }
 
@@ -74,10 +56,15 @@ namespace morph
         if (!pParentView)
             return;
 
-        if (m_pParentWindow)
+        WindowView* pWindowView= WindowView::getRootWindowView();
+        while (pWindowView->m_pChildWindowView)
         {
-            m_pParentWindow->m_pChildWindows.erase(this);
-            m_pParentWindow = nullptr;
+            if (pWindowView->m_pChildWindowView == this)
+            {
+                auto& nextWindowView = pWindowView->m_pChildWindowView->m_pChildWindowView;
+                pWindowView->m_pChildWindowView = nullptr;
+                pWindowView->m_pChildWindowView = nextWindowView;
+            }
         }
     }
 
@@ -87,26 +74,19 @@ namespace morph
         if (windowId == id)
             return this;
 
-        WindowView* pWindow = nullptr;
-
-        for (auto& pChildWindow : m_pChildWindows)
-        {
-            pWindow = pChildWindow->findWindowById(id);
-            if (pWindow)
-                break;
-        }
-
-        return pWindow;
+        return m_pChildWindowView->findWindowById(id);
     }
 
     void WindowView::show()
     {
-        if (!m_pParentWindow)
+        const bool bRootWindow = WindowView::getRootWindowView() == this;
+        if (bRootWindow)
         {
             // 1. 初始化 SDL2 窗口信息
             if (!SDL_Init(SDL_INIT_VIDEO))
             {
                 journal::Journal<journal::Severity::Fatal>() << "SDL_Init error: " << SDL_GetError();
+                return;
             }
         }
 
@@ -133,11 +113,11 @@ namespace morph
         }
 
         // 递归渲染子节点
-        for (auto& pChild : m_pChildWindows)
-            pChild->show();
+        if (m_pChildWindowView)
+            m_pChildWindowView->show();
 
         // Do not enter into loop if it is not top window
-        if (m_pParentWindow)
+        if (!bRootWindow)
             return;
 
         // 4. 主循环
@@ -148,6 +128,11 @@ namespace morph
                 if (event.type == SDL_EVENT_QUIT)
                 {
                     running = false;  // 用户点击关闭按钮
+                }
+                else if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
+                {
+                    // 任意窗口的关闭请求都退出主循环
+                    running = false;
                 }
                 else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
                 {
@@ -165,7 +150,12 @@ namespace morph
                 }
             }
             RendererPtr pRenderer = nullptr;
-            render(pRenderer, 0, 0);
+            WindowView* pWindowView = WindowView::getRootWindowView();
+            while (pWindowView)
+            {
+                pWindowView->render(pRenderer, 0, 0);
+                pWindowView = pWindowView->m_pChildWindowView;
+            }
         }
     }
 
@@ -176,9 +166,6 @@ namespace morph
 
     void WindowView::setRootWindowView(WindowView* pWindowView)
     {
-        if (s_pRootWindowView)
-            throw std::runtime_error("Root window exsits");
-
         s_pRootWindowView = pWindowView;
     }
 

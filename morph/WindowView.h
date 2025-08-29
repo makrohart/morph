@@ -30,7 +30,6 @@ namespace morph
         SDL_Renderer* m_pRenderer;
         SDL_Window* m_pWindow;
 
-        WindowView* m_pParentWindow = nullptr;
-        std::set<WindowView*> m_pChildWindows;
+        WindowView* m_pChildWindowView = nullptr;
     };
 }

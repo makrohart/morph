@@ -117,17 +117,28 @@ function App() {
           flexDirection: '3',
         }
       },
-      React.createElement(
-        "button",
-        {
-          onClick: () => { journal.log("Clicked! Background color changed!"); },
-          style: {
-            widthPercent: "50",
-            heightPercent: "50",
+      [
+        React.createElement(
+          "button",
+          {
+            onClick: () => { journal.log("Clicked! Background color changed!"); },
+            style: {
+              widthPercent: "50",
+              heightPercent: "50",
+            },
           },
-        },
-        "Click Me"
-      )
+          "Click Me"
+        ),
+        React.createElement(
+          "window",
+          {
+            style: {
+              width: '500',
+              height: '300',
+            }
+          }
+        )
+      ]
     )  
   );
 }
