@@ -12,45 +12,65 @@ namespace morph
 
     void TextView::onRender(RendererPtr& renderer, int& offsetX, int& offsetY)
     {
-        double t = getProperty("top");
-        double r = getProperty("right");
-        double b = getProperty("bottom");
-        double l = getProperty("left");
+        const double top = getProperty("top");
+        const double left = getProperty("left");
+        const double width = getProperty("width");
+        const double height = getProperty("height");
 
-        double w = getProperty("width");
-        double h = getProperty("height");
+        const double marginTop = getProperty("marginTop");
+        const double marginRight = getProperty("marginRight");
+        const double marginBottom = getProperty("marginBottom");
+        const double marginLeft = getProperty("marginLeft");
 
-        double mt = getProperty("marginTop");
-        double mr = getProperty("marginRight");
-        double mb = getProperty("marginBottom");
-        double ml = getProperty("marginLeft");
+        const double paddingTop = getProperty("paddingTop");
+        const double paddingRight = getProperty("paddingRight");
+        const double paddingBottom = getProperty("paddingBottom");
+        const double paddingLeft = getProperty("paddingLeft");
 
-        double pt = getProperty("paddingTop");
-        double pr = getProperty("paddingRight");
-        double pb = getProperty("paddingBottom");
-        double pl = getProperty("paddingLeft");
+        offsetX += static_cast<int>(left + marginLeft + paddingLeft);
+        offsetY += static_cast<int>(top + marginTop + paddingTop);
 
-        // 添加调试信息
-
-        offsetX += l + ml + pl;
-        offsetY += t + mt + pt;
+        // Calculate content area
+        const float contentWidth = static_cast<float>(width - marginRight - marginLeft - paddingRight - paddingLeft);
+        const float contentHeight = static_cast<float>(height - marginTop - marginBottom - paddingTop - paddingBottom);
 
         TTF_Font* font = TTF_OpenFont("Arial.ttf", 24);
         if (!font)
             return;
 
-        // 设置文字颜色
-        SDL_Color color = {0, 0, 0};  // 深色文字
+        // RAII wrapper for font
+        struct FontDeleter {
+            void operator()(TTF_Font* f) { TTF_CloseFont(f); }
+        };
+        std::unique_ptr<TTF_Font, FontDeleter> fontPtr(font);
 
-        // 使用 TTF_RenderText_Blended_Wrapped 渲染文本，文字可以折叠
-        SDL_Surface* text_surface = TTF_RenderText_Blended_Wrapped(font, m_text.data(), m_text.size(), color, w - mr - ml - pr - pl);
+        // Set text color
+        SDL_Color color = {0, 0, 0, 255};  // Black text
 
-        // 创建纹理
+        // Render text with wrapping
+        SDL_Surface* text_surface = TTF_RenderText_Blended_Wrapped(font, m_text.c_str(), static_cast<Uint32>(m_text.length()), color, static_cast<Uint32>(contentWidth));
+        if (!text_surface)
+            return;
+
+        // RAII wrapper for surface
+        struct SurfaceDeleter {
+            void operator()(SDL_Surface* s) { SDL_DestroySurface(s); }
+        };
+        std::unique_ptr<SDL_Surface, SurfaceDeleter> surfacePtr(text_surface);
+
+        // Create texture
         SDL_Texture* text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+        if (!text_texture)
+            return;
 
-        // 设置文字位置
-        SDL_FRect rect {(float)offsetX, (float)offsetY, (float)(w - mr - ml - pr - pl), (float)(h - mt - mb - pt - pb)};
-        
-        SDL_RenderTexture(renderer, text_texture, NULL, &rect);
-    };
+        // RAII wrapper for texture
+        struct TextureDeleter {
+            void operator()(SDL_Texture* t) { SDL_DestroyTexture(t); }
+        };
+        std::unique_ptr<SDL_Texture, TextureDeleter> texturePtr(text_texture);
+
+        // Set text position and render
+        SDL_FRect rect{static_cast<float>(offsetX), static_cast<float>(offsetY), contentWidth, contentHeight};
+        SDL_RenderTexture(renderer, text_texture, nullptr, &rect);
+    }
 }

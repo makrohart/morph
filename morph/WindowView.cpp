@@ -86,15 +86,16 @@ namespace morph
         if (bRootWindow)
         {
             // 1. 初始化 SDL2 窗口信息
-            if (!SDL_Init(SDL_INIT_VIDEO))
+            if (SDL_Init(SDL_INIT_VIDEO) < 0)
             {
                 journal::Journal<journal::Severity::Fatal>() << "SDL_Init error: " << SDL_GetError();
                 return;
             }
 
-            if (!TTF_Init())
+            if (TTF_Init() < 0)
             {
                 journal::Journal<journal::Severity::Fatal>() << "TTF_Init error: " << SDL_GetError();
+                SDL_Quit();
                 return;
             }         
         }
@@ -103,11 +104,15 @@ namespace morph
         const double height = getProperty("styleHeight");
 
         // 2. 创建窗口
-        m_pWindow = SDL_CreateWindow("morph", width, height, SDL_WINDOW_RESIZABLE);
+        m_pWindow = SDL_CreateWindow("morph", static_cast<int>(width), static_cast<int>(height), SDL_WINDOW_RESIZABLE);
         if (!m_pWindow)
         {
             journal::Journal<journal::Severity::Fatal>() << "SDL_CreateWindow error: " << SDL_GetError();
-            SDL_Quit();
+            if (bRootWindow)
+            {
+                TTF_Quit();
+                SDL_Quit();
+            }
             return;
         }
 
@@ -117,7 +122,11 @@ namespace morph
         if (!renderer) {
             journal::Journal<journal::Severity::Fatal>() << "SDL_CreateRenderer error: " << SDL_GetError();
             SDL_DestroyWindow(m_pWindow);
-            SDL_Quit();
+            if (bRootWindow)
+            {
+                TTF_Quit();
+                SDL_Quit();
+            }
             return;
         }
 

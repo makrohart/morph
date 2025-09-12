@@ -10,6 +10,8 @@
 
 namespace morph
 {
+    using Color = std::array<unsigned char, 4>;
+    
     struct YGLayout : ILayout
     {
         struct YGNodeDeleter
