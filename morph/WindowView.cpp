@@ -1,11 +1,6 @@
 #include  "WindowView.h"
-
+#include "WindowMgr.h"
 #include "SDL3_ttf/SDL_ttf.h"
-
-namespace
-{
-    static morph::WindowView* s_pRootWindowView = nullptr;
-}
 
 namespace morph
 {
@@ -13,10 +8,7 @@ namespace morph
 
     WindowView::~WindowView()
     {
-        SDL_DestroyRenderer(m_pRenderer);
-        SDL_DestroyWindow(m_pWindow);
-        TTF_Quit();
-        SDL_Quit();
+        destroyWindow();
     }
 
     void WindowView::onRender(RendererPtr& renderer, int& offsetX, int& offsetY)
@@ -46,12 +38,11 @@ namespace morph
 
         // WindowView will not be added to a View other than WindowView.
         // A View tree always have a WindowView as root.
-
-        if (WindowView* pWindowView = WindowView::getRootWindowView(); pWindowView != this)
-        {
-            m_pChildWindowView = pWindowView;
-            WindowView::setRootWindowView(this);
-        }
+        // Instead, add this WindowView to WindowMgr
+        WindowMgr& windowMgr = WindowMgr::getInstance();
+        windowMgr.addWindow(this);
+        
+        journal::Journal<journal::Severity::Info>() << "WindowView added to WindowMgr instead of View tree";
     }
 
     void WindowView::removeFrom(View* pParentView)
@@ -59,132 +50,63 @@ namespace morph
         if (!pParentView)
             return;
 
-        WindowView* pWindowView= WindowView::getRootWindowView();
-        while (pWindowView->m_pChildWindowView)
-        {
-            if (pWindowView->m_pChildWindowView == this)
-            {
-                auto& nextWindowView = pWindowView->m_pChildWindowView->m_pChildWindowView;
-                pWindowView->m_pChildWindowView = nullptr;
-                pWindowView->m_pChildWindowView = nextWindowView;
-            }
-        }
+        // Remove WindowView from WindowMgr instead of View tree
+        WindowMgr& windowMgr = WindowMgr::getInstance();
+        windowMgr.removeWindow(this);
+        
+        journal::Journal<journal::Severity::Info>() << "WindowView removed from WindowMgr";
     }
 
-    WindowView* WindowView::findWindowById(const SDL_WindowID id)
+    void WindowView::createWindow()
     {
-        const SDL_WindowID windowId = SDL_GetWindowID(m_pWindow);
-        if (windowId == id)
-            return this;
-
-        return m_pChildWindowView->findWindowById(id);
-    }
-
-    void WindowView::show()
-    {
-        const bool bRootWindow = WindowView::getRootWindowView() == this;
-        if (bRootWindow)
-        {
-            // 1. 初始化 SDL2 窗口信息
-            if (SDL_Init(SDL_INIT_VIDEO) < 0)
-            {
-                journal::Journal<journal::Severity::Fatal>() << "SDL_Init error: " << SDL_GetError();
-                return;
-            }
-
-            if (TTF_Init() < 0)
-            {
-                journal::Journal<journal::Severity::Fatal>() << "TTF_Init error: " << SDL_GetError();
-                SDL_Quit();
-                return;
-            }         
-        }
-
         const double width = getProperty("styleWidth");
         const double height = getProperty("styleHeight");
 
-        // 2. 创建窗口
+        // Create window
         m_pWindow = SDL_CreateWindow("morph", static_cast<int>(width), static_cast<int>(height), SDL_WINDOW_RESIZABLE);
         if (!m_pWindow)
         {
             journal::Journal<journal::Severity::Fatal>() << "SDL_CreateWindow error: " << SDL_GetError();
-            if (bRootWindow)
-            {
-                TTF_Quit();
-                SDL_Quit();
-            }
             return;
         }
 
-        // 3. 创建渲染器
+        // Get window ID
+        m_windowId = SDL_GetWindowID(m_pWindow);
+
+        // Create renderer
         SDL_Renderer* renderer = SDL_CreateRenderer(m_pWindow, nullptr);
         m_pRenderer = renderer;
         if (!renderer) {
             journal::Journal<journal::Severity::Fatal>() << "SDL_CreateRenderer error: " << SDL_GetError();
             SDL_DestroyWindow(m_pWindow);
-            if (bRootWindow)
-            {
-                TTF_Quit();
-                SDL_Quit();
-            }
+            m_pWindow = nullptr;
             return;
-        }
-
-        // 递归渲染子节点
-        if (m_pChildWindowView)
-            m_pChildWindowView->show();
-
-        // Do not enter into loop if it is not top window
-        if (!bRootWindow)
-            return;
-
-        // 4. 主循环
-        bool running = true;
-        while (running) {
-            SDL_Event event;
-            while (SDL_PollEvent(&event)) {
-                if (event.type == SDL_EVENT_QUIT)
-                {
-                    running = false;  // 用户点击关闭按钮
-                }
-                else if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
-                {
-                    // 任意窗口的关闭请求都退出主循环
-                    running = false;
-                }
-                else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
-                {
-                    WindowView* pWindowView = WindowView::getRootWindowView();
-                    WindowView* pFoundWindowView = pWindowView ? pWindowView->findWindowById(event.button.windowID) : nullptr;
-                    if (pFoundWindowView)
-                    {
-                        int x = event.button.x;
-                        int y = event.button.y; 
-
-                        morph::View* selectedView = pFoundWindowView->getSelectedNode(x, y);
-                        if (selectedView)
-                            selectedView->raiseEvent("onClick", eventable::EventArgs{});
-                    }         
-                }
-            }
-            RendererPtr pRenderer = nullptr;
-            WindowView* pWindowView = WindowView::getRootWindowView();
-            while (pWindowView)
-            {
-                pWindowView->render(pRenderer, 0, 0);
-                pWindowView = pWindowView->m_pChildWindowView;
-            }
         }
     }
 
-    WindowView* WindowView::getRootWindowView()
+    void WindowView::destroyWindow()
     {
-        return s_pRootWindowView;
-    } 
-
-    void WindowView::setRootWindowView(WindowView* pWindowView)
-    {
-        s_pRootWindowView = pWindowView;
+        if (m_pRenderer)
+        {
+            SDL_DestroyRenderer(m_pRenderer);
+            m_pRenderer = nullptr;
+        }
+        
+        if (m_pWindow)
+        {
+            SDL_DestroyWindow(m_pWindow);
+            m_pWindow = nullptr;
+        }
+        
+        m_windowId = 0;
     }
 
+    void WindowView::render()
+    {
+        if (!m_pRenderer)
+            return;
+            
+        RendererPtr pRenderer = nullptr;
+        View::render(pRenderer, 0, 0);
+    }
 }

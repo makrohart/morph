@@ -14,6 +14,7 @@
 #include "morph/TextView.h"
 #include "morph/View.h"
 #include "morph/WindowView.h"
+#include "morph/WindowMgr.h"
 #include "morph/MorphTimer.h"
 
 struct A : public aspectable::Aspectable<aspectable::Aspect>
@@ -103,17 +104,11 @@ int main(int argc, const char* argv[])
         engine->run(scripts);
         std::cout << "JavaScript engine initialized successfully!\n";
 
-        // Render nodes
-        morph::WindowView* pRootWindow = morph::WindowView::getRootWindowView();
-        if (pRootWindow)
-        {
-            pRootWindow->show();
-        }
-        else
-        {
-            journal::Journal<journal::Severity::Fatal>() << "No root window found!";
-            return 1;
-        }
+        // Create window manager
+        morph::WindowMgr& windowMgr = morph::WindowMgr::getInstance();
+        
+        // Run the main loop
+        windowMgr.run();
     }
     catch (const std::exception& e)
     {
