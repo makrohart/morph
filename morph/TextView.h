@@ -1,16 +1,21 @@
 #pragma  once
 
+#include <string>
+
 #include "View.h"
 
 namespace morph
 {
-    struct ButtonView : View
+    struct TextView : View
     {
-        ButtonView();
+        TextView(const std::string& text);
 
-        ~ButtonView() override = default;
+        ~TextView() override = default;
 
         void onRender(RendererPtr& renderer, int& offsetX, int& offsetY) override;
         inline void onRendered(RendererPtr& renderer) override {};
+
+        private:
+        std::string m_text;
     };
 };

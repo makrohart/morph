@@ -5,7 +5,8 @@
       return node instanceof View ||
              node instanceof DivView ||
              node instanceof ButtonView ||
-             node instanceof WindowView;
+             node instanceof WindowView ||
+             node instanceof TextView;
     },
 
     createNode: (type) => {
@@ -16,6 +17,10 @@
         return new DivView();
       else if (type === "window")
         return new WindowView();
+    },
+
+    createTextNode: (textInstance) => {
+      return new TextView(textInstance.text);
     },
 
     addNode: (parent, child) => {
@@ -161,7 +166,14 @@
      */
     appendInitialChild: function(parent, child) {
       new Journal().log("appendInitialChild");
-      HostEnvironment.addNode(parent, child);
+      if (child.type === 'text') {
+        // 处理文本内容
+        const textNode = HostEnvironment.createTextNode(child);
+        HostEnvironment.addNode(parent, textNode);
+      } else {
+        // 处理普通元素节点
+        HostEnvironment.addNode(parent, child);
+      } 
     },
 
     /**

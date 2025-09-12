@@ -11,6 +11,7 @@
 #include "add-ins/ViewModel.h"
 #include "morph/ButtonView.h"
 #include "morph/DivView.h"
+#include "morph/TextView.h"
 #include "morph/View.h"
 #include "morph/WindowView.h"
 #include "morph/MorphTimer.h"
@@ -72,6 +73,12 @@ int main(int argc, const char* argv[])
     needle::Sewable<"removeFrom", &morph::ButtonView::removeFrom, decltype(&morph::ButtonView::removeFrom)>().accept<V8Bridge>();
     needle::Sewable<"setProperty", &morph::ButtonView::setProperty, decltype(&morph::ButtonView::setProperty)>().accept<V8Bridge>();
     needle::Sewable<"onEvent", &morph::ButtonView::onEvent, decltype(&morph::ButtonView::onEvent)>().accept<V8Bridge>();
+
+    needle::Sewable<"TextView", nullptr, morph::TextView, const std::string&>().accept<V8Bridge>();
+    needle::Sewable<"addTo", &morph::TextView::addTo, decltype(&morph::TextView::addTo)>().accept<V8Bridge>();
+    needle::Sewable<"removeFrom", &morph::TextView::removeFrom, decltype(&morph::TextView::removeFrom)>().accept<V8Bridge>();
+    needle::Sewable<"setProperty", &morph::TextView::setProperty, decltype(&morph::TextView::setProperty)>().accept<V8Bridge>();
+    needle::Sewable<"onEvent", &morph::TextView::onEvent, decltype(&morph::TextView::onEvent)>().accept<V8Bridge>();
 
 
     needle::Sewable<"MorphTimer", nullptr, morph::MorphTimer>().accept<V8Bridge>();

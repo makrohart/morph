@@ -16,7 +16,9 @@ struct V8Bridge : needle::Needle<name, placeholder, C, Args...>
 
             // TODO: the allocated native objects are never released. Memory leak here now.
             // Need a proper handling here.
-            C* pNative = new C(bridge_cast<Args(const v8::Local<v8::Value>&)>{}(info[std::index_sequence_for<Args...>()])...);
+            C* pNative = [&]<std::size_t... Is>(std::index_sequence<Is...>){
+                    return new C(bridge_cast<Args(const v8::Local<v8::Value>&)>{}(info[Is])...);
+                }(std::index_sequence_for<Args...>{});
             info.This()->SetInternalField(0, v8::External::New(pIsolate, pNative));
         };
 
