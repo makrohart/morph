@@ -4,7 +4,7 @@
 #include "../JSType.h"
 #include "v8.h"
 #include "V8Type.h"
-#include "../bridge_cast.h"
+#include "../bridge_cast_v2.h"
 
 template<needle::FixedString name, auto placeholder, typename C, typename... Args>
 struct V8Bridge : needle::Needle<name, placeholder, C, Args...>
@@ -17,7 +17,7 @@ struct V8Bridge : needle::Needle<name, placeholder, C, Args...>
             // TODO: the allocated native objects are never released. Memory leak here now.
             // Need a proper handling here.
             C* pNative = [&]<std::size_t... Is>(std::index_sequence<Is...>){
-                    return new C(bridge_cast<Args(const v8::Local<v8::Value>&)>{}(info[Is])...);
+                    return new C(bridge_cast_v2::bridge_cast<Args(const v8::Local<v8::Value>&)>()(info[Is])...);
                 }(std::index_sequence_for<Args...>{});
             info.This()->SetInternalField(0, v8::External::New(pIsolate, pNative));
         };
@@ -48,7 +48,7 @@ struct V8Bridge<name, getterPtr, R(C::*)(), T> : needle::Needle<name, getterPtr,
             C* pNative = static_cast<C*>(native->Value());
 
             R result = pNative->operator()(getterPtr);
-            info.GetReturnValue().Set(bridge_cast<v8::Local<v8::Value>(R)>{}(result));
+            info.GetReturnValue().Set(bridge_cast_v2::bridge_cast<v8::Local<v8::Value>(R)>()(result));
         };
 
         std::vector<std::unique_ptr<JSType>>& jsTypes = JSTypes::getInstance()->getJSTypes();
@@ -70,7 +70,7 @@ struct V8Bridge<name, setterPtr, void(C::*)(R), T> : needle::Needle<name, setter
             v8::Local<v8::External> native = v8::Local<v8::External>::Cast(self->GetInternalField(0));
             C* pNative = static_cast<C*>(native->Value());
 
-            pNative->template operator()<void, C, R>(setterPtr, bridge_cast<R(const v8::Local<v8::Value>&)>{}(info.Data()));
+            pNative->template operator()<void, C, R>(setterPtr, bridge_cast_v2::bridge_cast<R(const v8::Local<v8::Value>&)>()(value));
         };
 
         std::vector<std::unique_ptr<JSType>>& jsTypes = JSTypes::getInstance()->getJSTypes();
@@ -96,15 +96,15 @@ struct V8Bridge<name, methodPtr, R(C::*)(Args...)> : needle::Needle<name, method
             if constexpr (std::is_void_v<R>) 
             {
                 [&]<std::size_t... Is>(std::index_sequence<Is...>){
-                    pNative->template operator()<R, C, Args...>(methodPtr, bridge_cast<Args(const v8::Local<v8::Value>&)>{}(info[Is])...);
+                    pNative->template operator()<R, C, Args...>(methodPtr, bridge_cast_v2::bridge_cast<Args(const v8::Local<v8::Value>&)>()(info[Is])...);
                 }(std::index_sequence_for<Args...>{});
             } 
             else 
             {
                 R result = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-                    return pNative->template operator()<R, C, Args...>(methodPtr, bridge_cast<Args(const v8::Local<v8::Value>&)>{}(info[Is])...);
+                    return pNative->template operator()<R, C, Args...>(methodPtr, bridge_cast_v2::bridge_cast<Args(const v8::Local<v8::Value>&)>()(info[Is])...);
                 }(std::index_sequence_for<Args...>{});
-                info.GetReturnValue().Set(bridge_cast<v8::Local<v8::Value>(R)>{}(result));
+                info.GetReturnValue().Set(bridge_cast_v2::bridge_cast<v8::Local<v8::Value>(R)>()(result));
             }
         };
 
