@@ -38,6 +38,17 @@ namespace morph
         void onEvent(const std::string& eventName, const std::function<void(eventable::EventArgs)>& eventHandler);
         void raiseEvent(const std::string& eventName, const eventable::EventArgs& eventArgs);
 
+        // Rendering helper methods for subclasses
+        void renderBackground(SDL_Renderer* renderer, const ILayout::Color& backgroundColor, 
+                            float x, float y, float width, float height);
+        void renderBorder(SDL_Renderer* renderer, const ILayout::Color& borderColor, 
+                        float x, float y, float width, float height);
+        void renderBackgroundAndBorder(SDL_Renderer* renderer, 
+                                     const ILayout::Color& backgroundColor,
+                                     const ILayout::Color& borderColor,
+                                     float x, float y, float width, float height);
+        ILayout::Color getColorFromProperties(double r, double g, double b, double a);
+
         private:
         std::unique_ptr<ILayout> m_pLayout{nullptr};
         View* m_pParentView = nullptr;

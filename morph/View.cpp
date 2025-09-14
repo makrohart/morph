@@ -25,7 +25,7 @@ namespace morph
     View::~View()
     {
         // DFS - safely delete children
-        for (auto& pChildView : m_pChildViews)
+        for (auto pChildView : m_pChildViews)
         {
             if (pChildView)
             {
@@ -33,22 +33,22 @@ namespace morph
                 m_pLayout->onLayoutChanged(YGLayoutChangedEventArgs{this, /*IsAdded=*/false});
                 delete pChildView;
             }
-            m_pChildViews.clear();
         }
+        m_pChildViews.clear();
     }
 
     void View::setProperty(const std::string& property, const std::string& value)
     {
-        if (m_pLayout.get())
+        if (m_pLayout)
             m_pLayout->setProperty(property, value);
     }
 
     double View::getProperty(const std::string& property)
     {
-        if (m_pLayout.get())
+        if (m_pLayout)
             return m_pLayout->getProperty(property);
 
-        throw std::runtime_error("Not supported property");
+        throw std::runtime_error("Layout not initialized or property not supported: " + property);
     }
 
     void View::addTo(View* pParentView)  
@@ -105,10 +105,10 @@ namespace morph
         double width = getProperty("width");
         double height = getProperty("height");
 
-        double button = top + height;
-        double right = width + width;
+        double bottom = top + height;
+        double right = left + width;
 
-        if (x < left || x > right || y < top || y > button)
+        if (x < left || x > right || y < top || y > bottom)
             return nullptr;
 
         x -= left;
@@ -133,15 +133,52 @@ namespace morph
     {
         m_eventable.raiseEvent(eventName, eventArgs);
 
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 255);
-        int r = dis(gen); // 红色分量 (0-255)
-        int g = dis(gen); // 绿色分量 (0-255)
-        int b = dis(gen); // 蓝色分量 (0-255)
-        setProperty("backgroundColorR", std::to_string(r));
-        setProperty("backgroundColorG", std::to_string(g));
-        setProperty("backgroundColorB", std::to_string(b));
-        setProperty("backgroundColorA", std::to_string(255));
+        // Only change background color for click events
+        if (eventName == "onClick")
+        {
+            static std::random_device rd;
+            static std::mt19937 gen(rd());
+            static std::uniform_int_distribution<> dis(0, 255);
+            
+            int r = dis(gen);
+            int g = dis(gen);
+            int b = dis(gen);
+            setProperty("backgroundColorR", std::to_string(r));
+            setProperty("backgroundColorG", std::to_string(g));
+            setProperty("backgroundColorB", std::to_string(b));
+            setProperty("backgroundColorA", std::to_string(255));
+        }
+    }
+
+    // Rendering helper methods implementation
+    void View::renderBackground(SDL_Renderer* renderer, const ILayout::Color& backgroundColor, 
+                              float x, float y, float width, float height)
+    {
+        SDL_SetRenderDrawColor(renderer, backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
+        SDL_FRect rect{x, y, width, height};
+        SDL_RenderFillRect(renderer, &rect);
+    }
+    
+    void View::renderBorder(SDL_Renderer* renderer, const ILayout::Color& borderColor, 
+                          float x, float y, float width, float height)
+    {
+        SDL_SetRenderDrawColor(renderer, borderColor[0], borderColor[1], borderColor[2], borderColor[3]);
+        SDL_FRect rect{x, y, width, height};
+        SDL_RenderRect(renderer, &rect);
+    }
+    
+    void View::renderBackgroundAndBorder(SDL_Renderer* renderer, 
+                                       const ILayout::Color& backgroundColor,
+                                       const ILayout::Color& borderColor,
+                                       float x, float y, float width, float height)
+    {
+        renderBackground(renderer, backgroundColor, x, y, width, height);
+        renderBorder(renderer, borderColor, x, y, width, height);
+    }
+    
+    ILayout::Color View::getColorFromProperties(double r, double g, double b, double a)
+    {
+        return {static_cast<unsigned char>(r), static_cast<unsigned char>(g), 
+                static_cast<unsigned char>(b), static_cast<unsigned char>(a)};
     }
 }

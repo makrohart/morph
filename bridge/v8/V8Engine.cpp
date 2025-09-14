@@ -1,5 +1,7 @@
 #include "V8Engine.h"
 
+#include <memory>
+#include <vector>
 #include "libplatform/libplatform.h"
 #include "../../journal/Journal.h"
 #include "../../journal/Severity.h"
@@ -13,23 +15,31 @@ namespace
 		FILE* file = fopen(name, "rb");
 		if (file == nullptr) return {};
 
-		fseek(file, 0, SEEK_END);
-		size_t size = ftell(file);
-		rewind(file);
+		// RAII wrapper for file
+		struct FileDeleter {
+			void operator()(FILE* f) { if (f) fclose(f); }
+		};
+		std::unique_ptr<FILE, FileDeleter> filePtr(file);
 
-		char* chars = new char[size + 1];
+		if (fseek(file, 0, SEEK_END) != 0) return {};
+		long size = ftell(file);
+		if (size < 0) return {};
+		if (fseek(file, 0, SEEK_SET) != 0) return {};
+
+		std::vector<char> chars(size + 1);
 		chars[size] = '\0';
-		for (size_t i = 0; i < size;) {
-			i += fread(&chars[i], 1, size - i, file);
-			if (ferror(file)) {
-				fclose(file);
-				return {};
+		
+		size_t totalRead = 0;
+		while (totalRead < static_cast<size_t>(size)) {
+			size_t bytesRead = fread(&chars[totalRead], 1, static_cast<size_t>(size) - totalRead, file);
+			if (bytesRead == 0) {
+				if (ferror(file)) return {};
+				break;
 			}
+			totalRead += bytesRead;
 		}
-		fclose(file);
-		v8::MaybeLocal<v8::String> result = v8::String::NewFromUtf8(isolate, chars, v8::NewStringType::kNormal, static_cast<int>(size));
-		delete[] chars;
-		return result;
+
+		return v8::String::NewFromUtf8(isolate, chars.data(), v8::NewStringType::kNormal, static_cast<int>(totalRead));
 	}
 }
 

@@ -14,6 +14,7 @@
 #include "morph/TextView.h"
 #include "morph/View.h"
 #include "morph/WindowView.h"
+#include "morph/WindowMgr.h"
 #include "morph/MorphTimer.h"
 
 struct A : public aspectable::Aspectable<aspectable::Aspect>
@@ -88,21 +89,32 @@ int main(int argc, const char* argv[])
     journal::Journal<journal::Severity::Info>()<< "Hello " << "morph";
     journal::Journal<journal::Severity::Fatal>()<< "Hello " << "morph";
 
-    JSEngine* engine = new V8Engine();
-    // Order matters
-    engine->run({
-        "D:/Projects/morph/out/build/x64-debug/Debug/morph-api.js",
-        "D:/Projects/morph/reacts/dist/reacts.umd.js",
-        "D:/Projects/morph/out/build/x64-debug/Debug/morph.js",
-        "D:/Projects/morph/out/build/x64-debug/Debug/journal.js",
-    });  
+    try
+    {
+        std::unique_ptr<JSEngine> engine = std::make_unique<V8Engine>();
+        
+        // Order matters - load JavaScript files
+        const std::vector<std::string> scripts = {
+            "D:/Projects/morph/out/build/x64-debug/Debug/morph-api.js",
+            "D:/Projects/morph/reacts/dist/reacts.umd.js",
+            "D:/Projects/morph/out/build/x64-debug/Debug/morph.js",
+            "D:/Projects/morph/out/build/x64-debug/Debug/journal.js",
+        };
+        
+        engine->run(scripts);
+        std::cout << "JavaScript engine initialized successfully!\n";
 
-    std::cout << "Hello, morph!\n";
-
-    // Render nodes
-    morph::WindowView* pRootWindow = morph::WindowView::getRootWindowView();
-    if (pRootWindow)
-        pRootWindow->show();
+        // Create window manager
+        morph::WindowMgr& windowMgr = morph::WindowMgr::getInstance();
+        
+        // Run the main loop
+        windowMgr.run();
+    }
+    catch (const std::exception& e)
+    {
+        journal::Journal<journal::Severity::Fatal>() << "Error: " << e.what();
+        return 1;
+    }
 
     return 0;
 }

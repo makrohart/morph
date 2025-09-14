@@ -17,19 +17,16 @@ namespace morph
         void addTo(View* pParentView) override;
         void removeFrom(View* pParentView) override;
 
-        void show();
-
-        WindowView* findWindowById(const SDL_WindowID id);
-
-        static WindowView* getRootWindowView();    
-        static void setRootWindowView(WindowView* pWindowView);
+        void createWindow();
+        void destroyWindow();
+        void render();
+        SDL_WindowID getWindowId() const { return m_windowId; }
 
         private:
         // m_pLocalRenderer is a temp storage for parent renderer
-        SDL_Renderer* m_pLocalRenderer;
-        SDL_Renderer* m_pRenderer;
-        SDL_Window* m_pWindow;
-
-        WindowView* m_pChildWindowView = nullptr;
+        SDL_Renderer* m_pLocalRenderer = nullptr;
+        SDL_Renderer* m_pRenderer = nullptr;
+        SDL_Window* m_pWindow = nullptr;
+        SDL_WindowID m_windowId = 0;
     };
 }

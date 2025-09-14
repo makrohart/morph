@@ -19,45 +19,46 @@ namespace morph
     
     void DivView::onRender(RendererPtr& renderer, int& offsetX, int& offsetY)
     {
+        const double top = getProperty("top");
+        const double left = getProperty("left");
+        const double width = getProperty("width");
+        const double height = getProperty("height");
 
-        double t = getProperty("top");
-        double r = getProperty("right");
-        double b = getProperty("bottom");
-        double l = getProperty("left");
+        const double marginTop = getProperty("marginTop");
+        const double marginRight = getProperty("marginRight");
+        const double marginBottom = getProperty("marginBottom");
+        const double marginLeft = getProperty("marginLeft");
 
-        double w = getProperty("width");
-        double h = getProperty("height");
+        const double paddingTop = getProperty("paddingTop");
+        const double paddingRight = getProperty("paddingRight");
+        const double paddingBottom = getProperty("paddingBottom");
+        const double paddingLeft = getProperty("paddingLeft");
 
-        double mt = getProperty("marginTop");
-        double mr = getProperty("marginRight");
-        double mb = getProperty("marginBottom");
-        double ml = getProperty("marginLeft");
+        offsetX += static_cast<int>(left + marginLeft + paddingLeft);
+        offsetY += static_cast<int>(top + marginTop + paddingTop);
 
-        double pt = getProperty("paddingTop");
-        double pr = getProperty("paddingRight");
-        double pb = getProperty("paddingBottom");
-        double pl = getProperty("paddingLeft");
+        // Calculate content area
+        const float contentWidth = static_cast<float>(width - marginRight - marginLeft - paddingRight - paddingLeft);
+        const float contentHeight = static_cast<float>(height - marginTop - marginBottom - paddingTop - paddingBottom);
 
-        offsetX += l + ml + pl;
-        offsetY += t + mt + pt;
+        // Get colors
+        const auto backgroundColor = getColorFromProperties(
+            getProperty("backgroundColorR"), 
+            getProperty("backgroundColorG"), 
+            getProperty("backgroundColorB"), 
+            getProperty("backgroundColorA")
+        );
 
-        // 绘制背景
-        ILayout::Color backgroundColor = { getProperty("backgroundColorR"), 
-                                            getProperty("backgroundColorG"), 
-                                            getProperty("backgroundColorB"), 
-                                            getProperty("backgroundColorA")};
+        const auto borderColor = getColorFromProperties(
+            getProperty("borderColorR"), 
+            getProperty("borderColorG"), 
+            getProperty("borderColorB"), 
+            getProperty("borderColorA")
+        );
 
-        SDL_SetRenderDrawColor(renderer, backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
-        SDL_FRect rect {(float)offsetX, (float)offsetY, (float)(w - mr - ml - pr - pl), (float)(h - mt - mb - pt - pb)};
-        SDL_RenderFillRect(renderer, &rect);
-
-        // // 绘制边框
-        ILayout::Color borderColor = { getProperty("borderColorR"), 
-                                        getProperty("borderColorG"), 
-                                        getProperty("borderColorB"), 
-                                        getProperty("borderColorA")};
-                                        
-        SDL_SetRenderDrawColor(renderer, borderColor[0], borderColor[1], borderColor[2], borderColor[3]);
-        SDL_RenderRect(renderer, &rect);
+        // Render background and border
+        renderBackgroundAndBorder(renderer, backgroundColor, borderColor, 
+                                static_cast<float>(offsetX), static_cast<float>(offsetY), 
+                                contentWidth, contentHeight);
     }
 }

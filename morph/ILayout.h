@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <string>
 
 #include "../eventable/EventArgs.h"
@@ -8,7 +9,7 @@ namespace morph
 {
     struct ILayout
     {
-        using Color = std::array<double, 4>;
+        using Color = std::array<unsigned char, 4>;
 
         virtual ~ILayout() {};
 
