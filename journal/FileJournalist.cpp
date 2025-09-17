@@ -2,7 +2,7 @@
 
 namespace
 {
-    const char JSExtention[] = ".js";
+    const char JSExtention[] = ".txt";
 
     const std::vector<std::string> JournalConfigPaths
 	{

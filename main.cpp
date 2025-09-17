@@ -95,10 +95,10 @@ int main(int argc, const char* argv[])
         
         // Order matters - load JavaScript files
         const std::vector<std::string> scripts = {
-            "D:/Projects/morph/out/build/x64-debug/Debug/morph-api.js",
-            "D:/Projects/morph/reacts/dist/reacts.umd.js",
-            "D:/Projects/morph/out/build/x64-debug/Debug/morph.js",
-            "D:/Projects/morph/out/build/x64-debug/Debug/journal.js",
+            "D:/Projects/morph/morphling/dist/bundle.js"
+            // "D:/Projects/morph/reacts/dist/reacts.umd.js",
+            // "D:/Projects/morph/out/build/x64-debug/Debug/morph.js",
+            // "D:/Projects/morph/out/build/x64-debug/Debug/journal.js",
         };
         
         engine->run(scripts);
