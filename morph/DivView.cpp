@@ -19,10 +19,7 @@ namespace morph
     
     void DivView::onRender(RendererPtr& renderer, int& offsetX, int& offsetY)
     {
-        const double top = getProperty("top");
-        const double left = getProperty("left");
-        const double width = getProperty("width");
-        const double height = getProperty("height");
+        const auto [top, left, width, height] = getBoundingBox();
 
         const double marginTop = getProperty("marginTop");
         const double marginRight = getProperty("marginRight");

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <random>
 #include <set>
@@ -22,6 +23,8 @@ namespace morph
         void setProperty(const std::string& property, const std::string& value);
         double getProperty(const std::string& property);
 
+        std::array<double, 4> getBoundingBox();
+
         virtual void addTo(View* pParentView);
         virtual void  removeFrom(View* pParentView);
 
@@ -37,6 +40,7 @@ namespace morph
 
         void onEvent(const std::string& eventName, const std::function<void(eventable::EventArgs)>& eventHandler);
         void raiseEvent(const std::string& eventName, const eventable::EventArgs& eventArgs);
+        bool canRaiseEvent(double x, double y);
 
         // Rendering helper methods for subclasses
         void renderBackground(SDL_Renderer* renderer, const ILayout::Color& backgroundColor, 

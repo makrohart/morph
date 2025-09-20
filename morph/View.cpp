@@ -51,6 +51,16 @@ namespace morph
         throw std::runtime_error("Layout not initialized or property not supported: " + property);
     }
 
+    std::array<double, 4> View::getBoundingBox()
+    {
+        const double top = getProperty("top");
+        const double left = getProperty("left");
+        const double width = getProperty("width");
+        const double height = getProperty("height");
+
+        return {top, left, width, height};
+    }
+
     void View::addTo(View* pParentView)  
     {
         if (!pParentView)
@@ -131,25 +141,24 @@ namespace morph
 
     void View::raiseEvent(const std::string& eventName, const eventable::EventArgs& eventArgs)
     {
-        m_eventable.raiseEvent(eventName, eventArgs);
+        const bool bRaiseEvent = canRaiseEvent(eventArgs.position.at(0), eventArgs.position.at(1));
+        if (bRaiseEvent)
+            m_eventable.raiseEvent(eventName, eventArgs);
 
-        // Only change background color for click events
-        if (eventName == "onClick")
-        {
-            static std::random_device rd;
-            static std::mt19937 gen(rd());
-            static std::uniform_int_distribution<> dis(0, 255);
-            
-            int r = dis(gen);
-            int g = dis(gen);
-            int b = dis(gen);
-            setProperty("backgroundColorR", std::to_string(r));
-            setProperty("backgroundColorG", std::to_string(g));
-            setProperty("backgroundColorB", std::to_string(b));
-            setProperty("backgroundColorA", std::to_string(255));
-        }
+        // Recursively raise event down along the tree
+        for (auto& pChild : m_pChildViews)
+            pChild->raiseEvent(eventName, eventArgs);
     }
 
+    bool View::canRaiseEvent(double x, double y)
+    {
+        const auto [top, left, width, height] = getBoundingBox();
+        return x >= left && 
+               x <= (left + width) &&
+               y >= top && 
+               y <= (top + height);
+    }
+    
     // Rendering helper methods implementation
     void View::renderBackground(SDL_Renderer* renderer, const ILayout::Color& backgroundColor, 
                               float x, float y, float width, float height)

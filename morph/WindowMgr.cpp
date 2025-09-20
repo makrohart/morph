@@ -125,14 +125,10 @@ namespace morph
                         WindowView* targetWindow = findWindowById(event.button.windowID);
                         if (targetWindow)
                         {
-                            int x = event.button.x;
-                            int y = event.button.y;
+                            double x = event.button.x;
+                            double y = event.button.y;
                             
-                            morph::View* selectedView = targetWindow->getSelectedNode(x, y);
-                            if (selectedView)
-                            {
-                                selectedView->raiseEvent("onClick", eventable::EventArgs{});
-                            }
+                            targetWindow->raiseEvent("onClick", eventable::EventArgs(std::array<double, 2>{x,y}));
                         }
                     }
                     break;

@@ -19,10 +19,7 @@ namespace morph
 
     void ButtonView::onRender(RendererPtr& renderer, int& offsetX, int& offsetY)
     {
-        const double top = getProperty("top");
-        const double left = getProperty("left");
-        const double width = getProperty("width");
-        const double height = getProperty("height");
+        const auto [top, left, width, height] = getBoundingBox();
 
         offsetX += static_cast<int>(left);
         offsetY += static_cast<int>(top);
