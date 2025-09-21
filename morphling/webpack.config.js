@@ -4,11 +4,14 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// 根据命令行参数决定配置
+const isDev = process.argv.includes('--mode') && process.argv[process.argv.indexOf('--mode') + 1] === 'development';
+
 export default {
-    entry: './index.js',
+    entry: isDev ? ['./mocks/index.js', './index.js'] : './index.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js',
+        filename: isDev ? 'bundle.dev.js' : 'bundle.prod.js',
         library: 'MorphlingApp',
         libraryTarget: 'umd',
         globalObject: 'this'
@@ -40,11 +43,24 @@ export default {
         extensions: ['.js', '.jsx'],
         alias: {
             'react': path.resolve(__dirname, 'node_modules/react'),
-            'react-reconciler': path.resolve(__dirname, 'node_modules/react-reconciler')
+            'react-reconciler': path.resolve(__dirname, 'node_modules/react-reconciler'),
+            // 在开发模式下，使用mock文件替代external
+            ...(isDev && {
+                'View': path.resolve(__dirname, 'mocks/View.js'),
+                'DivView': path.resolve(__dirname, 'mocks/DivView.js'),
+                'ButtonView': path.resolve(__dirname, 'mocks/ButtonView.js'),
+                'WindowView': path.resolve(__dirname, 'mocks/WindowView.js'),
+                'TextView': path.resolve(__dirname, 'mocks/TextView.js'),
+                'ImageView': path.resolve(__dirname, 'mocks/ImageView.js'),
+                'ScrollView': path.resolve(__dirname, 'mocks/ScrollView.js'),
+                'ListView': path.resolve(__dirname, 'mocks/ListView.js'),
+                'Journal': path.resolve(__dirname, 'mocks/Journal.js'),
+                'MorphTimer': path.resolve(__dirname, 'mocks/MorphTimer.js')
+            })
         }
     },
-    externals: {
-        // 这些是V8环境提供的全局对象，不需要打包
+    externals: isDev ? {} : {
+        // 生产模式下，这些是V8环境提供的全局对象，不需要打包
         'View': 'View',
         'DivView': 'DivView',
         'ButtonView': 'ButtonView',
@@ -56,12 +72,12 @@ export default {
         'Journal': 'Journal',
         'MorphTimer': 'MorphTimer'
     },
-    mode: 'development',
-    devtool: 'source-map',
+    mode: isDev ? 'development' : 'production',
+    devtool: isDev ? 'source-map' : 'source-map',  // 生产模式也生成source map
     target: 'node',
     optimization: {
-        minimize: false,  // 不压缩代码，保持可读性
-        usedExports: false,  // 不标记未使用的导出
+        minimize: false,  // 两种模式都不压缩，保持可读性
+        usedExports: false,  // 不启用tree shaking，保持代码完整性
         sideEffects: false
     }
 };
