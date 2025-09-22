@@ -1,18 +1,22 @@
 // 定义全局变量
 if (typeof globalThis !== 'undefined') {
-    // 现代环境
+    // 现代环境 - 保存原始console
+    globalThis.originalConsole = globalThis.console;
     globalThis.console = new Journal();
     globalThis.morphTimer = new MorphTimer();
 } else if (typeof global !== 'undefined') {
-    // Node.js 环境
+    // Node.js 环境 - 保存原始console
+    global.originalConsole = global.console;
     global.console = new Journal();
     global.morphTimer = new MorphTimer();
 } else if (typeof window !== 'undefined') {
-    // 浏览器环境
+    // 浏览器环境 - 保存原始console
+    window.originalConsole = window.console;
     window.console = new Journal();
     window.morphTimer = new MorphTimer();
 } else {
     // V8 环境 - 直接赋值给 this
+    this.originalConsole = this.console;
     this.console = new Journal();
     this.morphTimer = new MorphTimer();
 }
@@ -23,7 +27,9 @@ const morphTimer = globalThis?.morphTimer || global?.morphTimer || window?.morph
 
 // 正确的全局定义方式
 if (typeof globalThis !== 'undefined') {
-    // 现代环境
+    // 现代环境 - 保存原始函数
+    globalThis.originalSetTimeout = globalThis.setTimeout;
+    globalThis.originalClearTimeout = globalThis.clearTimeout;
     globalThis.setTimeout = (callback, delayMS) => {
         return morphTimer.setTimeout(callback, delayMS);
     };
@@ -34,7 +40,9 @@ if (typeof globalThis !== 'undefined') {
         return globalThis.setTimeout(fn, 0, ...args);
     };
 } else if (typeof global !== 'undefined') {
-    // Node.js 环境
+    // Node.js 环境 - 保存原始函数
+    global.originalSetTimeout = global.setTimeout;
+    global.originalClearTimeout = global.clearTimeout;
     global.setTimeout = (callback, delayMS) => {
         return morphTimer.setTimeout(callback, delayMS);
     };
@@ -45,7 +53,9 @@ if (typeof globalThis !== 'undefined') {
         return global.setTimeout(fn, 0, ...args);
     };
 } else if (typeof window !== 'undefined') {
-    // 浏览器环境
+    // 浏览器环境 - 保存原始函数
+    window.originalSetTimeout = window.setTimeout;
+    window.originalClearTimeout = window.clearTimeout;
     window.setTimeout = (callback, delayMS) => {
         return morphTimer.setTimeout(callback, delayMS);
     };
@@ -57,6 +67,8 @@ if (typeof globalThis !== 'undefined') {
     };
 } else {
     // V8 环境 - 直接赋值给 this
+    this.originalSetTimeout = this.setTimeout;
+    this.originalClearTimeout = this.clearTimeout;
     this.setTimeout = (callback, delayMS) => {
         return morphTimer.setTimeout(callback, delayMS);
     };

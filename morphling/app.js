@@ -32,6 +32,7 @@ function App() {
                 React.createElement(
                     "button",
                     {
+                        key: "main-button",
                         onClick: () => { 
                             console.log("Clicked! Background color changed!");
                             setCount(count + 1);
@@ -46,6 +47,7 @@ function App() {
                 React.createElement(
                     "window",
                     {
+                        key: "sub-window",
                         style: {
                             width: '500',
                             height: '300',

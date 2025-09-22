@@ -4,6 +4,16 @@ export class MorphTimer {
         this.timers = new Map();
         this.nextId = 1;
         console.log('MorphTimer mock created');
+        
+        // 保存原始的setTimeout和clearTimeout
+        this.originalSetTimeout = (typeof globalThis !== 'undefined' && globalThis.originalSetTimeout) || 
+                                 (typeof global !== 'undefined' && global.originalSetTimeout) || 
+                                 (typeof window !== 'undefined' && window.originalSetTimeout) || 
+                                 setTimeout;
+        this.originalClearTimeout = (typeof globalThis !== 'undefined' && globalThis.originalClearTimeout) || 
+                                   (typeof global !== 'undefined' && global.originalClearTimeout) || 
+                                   (typeof window !== 'undefined' && window.originalClearTimeout) || 
+                                   clearTimeout;
     }
 
     setTimeout(callback, delayMS) {
@@ -17,8 +27,8 @@ export class MorphTimer {
         
         this.timers.set(id, timer);
         
-        // 在Node.js环境中使用真实的setTimeout
-        const realTimeout = setTimeout(() => {
+        // 使用原始的setTimeout，避免循环调用
+        const realTimeout = this.originalSetTimeout(() => {
             this.timers.delete(id);
             callback();
         }, delayMS);
@@ -30,7 +40,7 @@ export class MorphTimer {
     clearTimeout(id) {
         const timer = this.timers.get(id);
         if (timer && timer.realTimeout) {
-            clearTimeout(timer.realTimeout);
+            this.originalClearTimeout(timer.realTimeout);
             this.timers.delete(id);
             console.log(`Timer ${id} cleared`);
         }

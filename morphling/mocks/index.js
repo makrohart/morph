@@ -1,14 +1,17 @@
 // Mock入口文件 - 在开发环境中提供V8 API的模拟实现
-export { View } from './View.js';
-export { DivView } from './DivView.js';
-export { ButtonView } from './ButtonView.js';
-export { WindowView } from './WindowView.js';
-export { TextView } from './TextView.js';
-export { ImageView } from './ImageView.js';
-export { ScrollView } from './ScrollView.js';
-export { ListView } from './ListView.js';
-export { Journal } from './Journal.js';
-export { MorphTimer } from './MorphTimer.js';
+import { View } from './View.js';
+import { DivView } from './DivView.js';
+import { ButtonView } from './ButtonView.js';
+import { WindowView } from './WindowView.js';
+import { TextView } from './TextView.js';
+import { ImageView } from './ImageView.js';
+import { ScrollView } from './ScrollView.js';
+import { ListView } from './ListView.js';
+import { Journal } from './Journal.js';
+import { MorphTimer } from './MorphTimer.js';
+
+// 导出这些类
+export { View, DivView, ButtonView, WindowView, TextView, ImageView, ScrollView, ListView, Journal, MorphTimer };
 
 // 将mock对象设置为全局变量，模拟V8环境
 if (typeof globalThis !== 'undefined') {

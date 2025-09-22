@@ -14,7 +14,7 @@ export default {
         filename: isDev ? 'bundle.dev.js' : 'bundle.prod.js',
         library: 'MorphlingApp',
         libraryTarget: 'umd',
-        globalObject: 'this'
+        globalObject: 'globalThis'
     },
     module: {
         rules: [
@@ -78,6 +78,9 @@ export default {
     optimization: {
         minimize: false,  // 两种模式都不压缩，保持可读性
         usedExports: false,  // 不启用tree shaking，保持代码完整性
-        sideEffects: false
+        sideEffects: false,
+        // 确保代码格式化和可读性
+        concatenateModules: false,  // 不合并模块，保持结构清晰
+        splitChunks: false  // 不分割代码块，保持单一文件
     }
 };
