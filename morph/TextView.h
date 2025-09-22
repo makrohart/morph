@@ -15,6 +15,8 @@ namespace morph
         void onRender(RendererPtr& renderer, int& offsetX, int& offsetY) override;
         inline void onRendered(RendererPtr& renderer) override {};
 
+        void setText(const std::string& text);
+
         private:
         std::string m_text;
     };

@@ -101,4 +101,9 @@ namespace morph
         SDL_FRect rect{static_cast<float>(offsetX), static_cast<float>(offsetY), renderWidth, renderHeight};
         SDL_RenderTexture(renderer, text_texture, nullptr, &rect);
     }
+
+    void TextView::setText(const std::string& text)
+    {
+        m_text = text;
+    }
 }

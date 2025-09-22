@@ -36,6 +36,7 @@ function App() {
                         onClick: () => { 
                             console.log("Clicked! Background color changed!");
                             setCount(count + 1);
+                            console.log(`Click count: ${count}`);
                         },
                         style: {
                             widthPercent: "50",

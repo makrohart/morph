@@ -80,6 +80,7 @@ int main(int argc, const char* argv[])
     needle::Sewable<"removeFrom", &morph::TextView::removeFrom, decltype(&morph::TextView::removeFrom)>().accept<V8Bridge>();
     needle::Sewable<"setProperty", &morph::TextView::setProperty, decltype(&morph::TextView::setProperty)>().accept<V8Bridge>();
     needle::Sewable<"onEvent", &morph::TextView::onEvent, decltype(&morph::TextView::onEvent)>().accept<V8Bridge>();
+    needle::Sewable<"setText", &morph::TextView::setText, decltype(&morph::TextView::setText)>().accept<V8Bridge>();
 
 
     needle::Sewable<"MorphTimer", nullptr, morph::MorphTimer>().accept<V8Bridge>();

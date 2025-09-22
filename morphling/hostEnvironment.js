@@ -116,7 +116,8 @@ const HostEnvironment = {
     },
 
     createTextNode: (textInstance) => {
-      return new TextView(textInstance.text);
+      const textView = new TextView(textInstance.text);
+      return textView;
     },
 
     addNode: (parent, child) => {
