@@ -115,9 +115,13 @@ const HostEnvironment = {
         }
     },
 
-    createTextNode: (textInstance) => {
-      const textView = new TextView(textInstance.text);
+    createTextNode: (text) => {
+      const textView = new TextView(text);
       return textView;
+    },
+
+    setText: (textNode, text) => {
+      textNode.setText(text);
     },
 
     addNode: (parent, child) => {
