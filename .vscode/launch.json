@@ -5,7 +5,7 @@
             "name": "Debug Bundle Dev",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/morphling/dist/bundle.dev.js",
+            "program": "${workspaceFolder}/morphling/dist/bundle.debug.js",
             "console": "integratedTerminal",
             "runtimeArgs": [
                 "--inspect-brk"
