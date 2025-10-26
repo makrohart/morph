@@ -344,23 +344,59 @@ commitMount: function(instance, type, newProps, rootContainerInstance) {
 },
 
 /**
- * Commits updates to an instance
- * This method should mutate the instance to match nextProps.
+ * Prepares an update for an instance
+ * This method compares oldProps and newProps to determine what needs to be updated.
  * @param {Object} instance - The instance to update
  * @param {string} type - The type
  * @param {Object} oldProps - The old props
  * @param {Object} newProps - The new props
  * @param {Object} rootContainerInstance - The root container
+ * @param {Object} hostContext - The host context
+ * @returns {Object|null} Update payload or null if no updates needed
  */
-commitUpdate: function(instance, type, oldProps, newProps, rootContainerInstance) {
-    new Journal().log("react-reconciler::commitUpdate");
+prepareUpdate: function(instance, type, oldProps, newProps, rootContainerInstance, hostContext) {
+    new Journal().log("react-reconciler::prepareUpdate");
     
-    // 更新属性
-    Object.keys(newProps).forEach((key) => {
+    const updatePayload = [];
+    let hasUpdates = false;
+    
+    // 比较属性变化
+    const allKeys = new Set([...Object.keys(oldProps), ...Object.keys(newProps)]);
+    
+    allKeys.forEach((key) => {
         if (key === "children") return;
         
         const oldValue = oldProps[key];
         const newValue = newProps[key];
+        
+        if (oldValue !== newValue) {
+            updatePayload.push(key, newValue);
+            hasUpdates = true;
+        }
+    });
+    
+    // 如果有更新，返回更新载荷；否则返回 null
+    return hasUpdates ? updatePayload : null;
+},
+
+/**
+ * Commits updates to an instance
+ * This method should mutate the instance to match nextProps.
+ * @param {Object} instance - The instance to update
+ * @param {string} type - The type
+ * @param {Object} prevProps - The previous props
+ * @param {Object} nextProps - The next props
+ * @param {Object} internalHandle - The internal handle
+ */
+commitUpdate: function(instance, type, prevProps, nextProps, internalHandle) {
+    new Journal().log("react-reconciler::commitUpdate");
+    
+    // 更新属性
+    Object.keys(nextProps).forEach((key) => {
+        if (key === "children") return;
+        
+        const oldValue = prevProps[key];
+        const newValue = nextProps[key];
         
         if (oldValue !== newValue) {
             if (key.startsWith("on") && typeof newValue === "function") {

@@ -6,9 +6,19 @@ function App() {
     // 简单的状态管理
     const [count, setCount] = React.useState(0);
     
-    // Use useEffect to log when component mounts
+    // Use useEffect to log when component mounts and trigger setCount
     React.useEffect(() => {
         console.log("App component mounted - useEffect called");
+        
+        // 渲染完成后自动触发 setCount
+        setTimeout(() => {
+            console.log("自动触发 setCount...");
+            setCount(prevCount => {
+                const newCount = prevCount + 1;
+                console.log(`setCount 被触发，新计数: ${newCount}`);
+                return newCount;
+            });
+        }, 100); // 延迟100ms确保渲染完成
     }, []);
 
     return React.createElement(
