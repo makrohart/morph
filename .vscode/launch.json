@@ -21,6 +21,17 @@
             "env": {
                 "NODE_ENV": "development"
             }
+        },
+        {
+            "name": "Debug C++ (morph.exe)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/build/x64-debug/Debug/morph.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/out/build/x64-debug/Debug",
+            "environment": [],
+            "console": "integratedTerminal"
         }
     ]
 }

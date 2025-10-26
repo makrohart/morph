@@ -45,7 +45,12 @@ function App() {
                         key: "main-button",
                         onClick: () => { 
                             console.log("Clicked! Background color changed!");
-                            setCount(count + 1);
+                            // setCount(count + 1); 不工作
+                            setCount(prevCount => {
+                                const newCount = prevCount + 1;
+                                console.log(`setCount 被触发，新计数: ${newCount}`);
+                                return newCount;
+                            });
                             console.log(`Click count: ${count}`);
                         },
                         style: {
