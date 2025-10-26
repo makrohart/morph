@@ -19,6 +19,15 @@ namespace eventable
             m_events[event].on(eventHandler);       
         }
 
+        void removeEvent(const std::string& event, const std::function<void(EventArgs)>& eventHandler)
+        {
+            // TODO: should remove one eventHandler rather all eventHandlers under the same event
+            if (auto find = m_events.find(event); find == m_events.cend())
+                return;
+            else
+                m_events.erase(find);  
+        }
+
         void raiseEvent(const std::string& event, const EventArgs& eventArgs)
         {
             if (m_events.find(event) == m_events.cend())

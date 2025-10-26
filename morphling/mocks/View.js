@@ -36,6 +36,16 @@ export class View {
         console.log(`Event handler for ${eventType} added`);
     }
 
+    // 添加事件移除方法
+    removeEvent(eventType, handler) {
+        if (this.eventHandlers[eventType]) {
+            delete this.eventHandlers[eventType];
+            console.log(`Event handler for ${eventType} removed`);
+        } else {
+            console.log(`No event handler found for ${eventType}`);
+        }
+    }
+
     // 模拟事件触发
     triggerEvent(eventType, ...args) {
         if (this.eventHandlers[eventType]) {

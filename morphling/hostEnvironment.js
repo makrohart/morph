@@ -154,9 +154,20 @@ const HostEnvironment = {
     // 添加事件绑定方法
     addEventListener: (node, eventType, handler) => {
         if (HostEnvironment.isValidNode(node) && node.onEvent) {
+            console.log(`Add event listener ${eventType} to node:`, node);
             node.onEvent(eventType, handler);
         } else {
             console.log(`Cannot add event listener ${eventType} to node:`, node);
+        }
+    },
+
+    // 添加事件移除方法
+    removeEventListener: (node, eventType, handler) => {
+        if (HostEnvironment.isValidNode(node) && node.removeEvent) {
+            console.log(`Remove event listener ${eventType} from node:`, node);
+            node.removeEvent(eventType, handler);
+        } else {
+            console.log(`Cannot remove event listener ${eventType} from node:`, node);
         }
     }
 };

@@ -400,7 +400,17 @@ commitUpdate: function(instance, type, prevProps, nextProps, internalHandle) {
         
         if (oldValue !== newValue) {
             if (key.startsWith("on") && typeof newValue === "function") {
+                // 移除旧的事件监听器
+                if (oldValue && typeof oldValue === "function") {
+                    HostEnvironment.removeEventListener(instance, key, oldValue);
+                }
+                // 添加新的事件监听器
                 HostEnvironment.addEventListener(instance, key, newValue);
+            } else if (key.startsWith("on") && !newValue) {
+                // 如果新值为空，移除事件监听器
+                if (oldValue && typeof oldValue === "function") {
+                    HostEnvironment.removeEventListener(instance, key, oldValue);
+                }
             } else if (key === "style") {
                 Object.entries(newValue).forEach(([styleKey, value]) => {
                     HostEnvironment.setProperty(instance, styleKey, value);

@@ -6,20 +6,15 @@ function App() {
     // 简单的状态管理
     const [count, setCount] = React.useState(0);
     
-    // Use useEffect to log when component mounts and trigger setCount
-    React.useEffect(() => {
-        console.log("App component mounted - useEffect called");
-        
-        // 渲染完成后自动触发 setCount
-        setTimeout(() => {
-            console.log("自动触发 setCount...");
-            setCount(prevCount => {
-                const newCount = prevCount + 1;
-                console.log(`setCount 被触发，新计数: ${newCount}`);
-                return newCount;
-            });
-        }, 100); // 延迟100ms确保渲染完成
-    }, []);
+    // 使用 useCallback 来稳定函数引用，避免每次渲染都创建新的函数
+    const handleClick = React.useCallback(() => {
+        console.log("Clicked! Background color changed!");
+        setCount(prevCount => {
+            const newCount = prevCount + 1;
+            console.log(`setCount 被触发，新计数: ${newCount}`);
+            return newCount;
+        });
+    }, []); // 空依赖数组，函数引用不会改变
 
     return React.createElement(
         "window",
@@ -43,16 +38,7 @@ function App() {
                     "button",
                     {
                         key: "main-button",
-                        onClick: () => { 
-                            console.log("Clicked! Background color changed!");
-                            // setCount(count + 1); 不工作
-                            setCount(prevCount => {
-                                const newCount = prevCount + 1;
-                                console.log(`setCount 被触发，新计数: ${newCount}`);
-                                return newCount;
-                            });
-                            console.log(`Click count: ${count}`);
-                        },
+                        onClick: handleClick,
                         style: {
                             widthPercent: "50",
                             heightPercent: "50",

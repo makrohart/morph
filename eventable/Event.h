@@ -13,6 +13,8 @@ namespace eventable
 
         void on(const std::function<void(EventArgs)>& eventHandler)
         {
+            if (m_eventHandlers.size())
+                return;
             m_eventHandlers.push_back(eventHandler);
         }
 
