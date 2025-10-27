@@ -97,7 +97,7 @@ int main(int argc, const char* argv[])
         std::unique_ptr<JSEngine> engine = std::make_unique<V8Engine>();
         
         // Order matters - load JavaScript files
-        const std::vector<std::string> scripts = { "D:/Projects/morph/morphling/dist/bundle.dev.js" };
+        const std::vector<std::string> scripts = { "D:/Projects/morphling/morphling/dist/bundle.dev.js" };
         
         engine->run(scripts);
         std::cout << "JavaScript engine initialized successfully!\n";
