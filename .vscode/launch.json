@@ -26,7 +26,7 @@
             "name": "Debug C++ (morph.exe)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/out/build/x64-debug/Debug/morph.exe",
+            "program": "${workspaceFolder}/out/build/x64-debug/Debug/morphling.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/out/build/x64-debug/Debug",
