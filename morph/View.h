@@ -1,0 +1,63 @@
+#pragma once
+
+#include <array>
+#include <memory>
+#include <random>
+#include <set>
+#include <string>
+
+#include "../aspectable/Aspectable.h"
+#include "../eventable/Eventable.h"
+#include "SDL3/SDL.h"
+#include "YGLayout.h"
+
+namespace morph
+{
+    struct View : aspectable::Aspectable<aspectable::Aspect>
+    {
+        using RendererPtr = SDL_Renderer*;
+
+        View();
+        ~View();
+
+        void setProperty(const std::string& property, const std::string& value);
+        double getProperty(const std::string& property);
+
+        std::array<double, 4> getBoundingBox();
+
+        virtual void addTo(View* pParentView);
+        virtual void  removeFrom(View* pParentView);
+
+        void render(RendererPtr& renderer, int offsetX, int offsetY);
+        virtual void onRender(RendererPtr& renderer, int& offsetX, int& offsetY);
+        inline virtual void onRendered(RendererPtr& renderer) {};
+
+        inline ILayout* getLayout() const { return m_pLayout.get(); }
+        inline int getChildrenSize() const { return m_pChildViews.size(); }
+
+        virtual View* getSelectedNode(int x, int y);
+        inline View* getParentView() { return m_pParentView; }
+
+        void onEvent(const std::string& eventName, const std::function<void(eventable::EventArgs)>& eventHandler);
+        void removeEvent(const std::string& eventName);
+        void raiseEvent(const std::string& eventName, const eventable::EventArgs& eventArgs);
+        bool canRaiseEvent(double x, double y);
+
+        // Rendering helper methods for subclasses
+        void renderBackground(SDL_Renderer* renderer, const ILayout::Color& backgroundColor, 
+                            float x, float y, float width, float height);
+        void renderBorder(SDL_Renderer* renderer, const ILayout::Color& borderColor, 
+                        float x, float y, float width, float height);
+        void renderBackgroundAndBorder(SDL_Renderer* renderer, 
+                                     const ILayout::Color& backgroundColor,
+                                     const ILayout::Color& borderColor,
+                                     float x, float y, float width, float height);
+        ILayout::Color getColorFromProperties(double r, double g, double b, double a);
+
+        private:
+        std::unique_ptr<ILayout> m_pLayout{nullptr};
+        View* m_pParentView = nullptr;
+        std::set<View*> m_pChildViews;
+        eventable::Eventable m_eventable;
+    };
+}
