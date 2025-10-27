@@ -1,21 +1,2 @@
-# 始终将文本文件标准化为 LF
-* text=auto
-
-# 明确指定文本文件
-*.cpp text
-*.h text
-*.js text
-*.json text
-*.md text
-
-# 二进制文件不转换
-*.dll binary
-*.lib binary
-*.pdb binary
-*.bin binary
-*.png binary
-*.jpg binary
-
-# 脚本文件保持原样
-*.sh text eol=lf
-*.bat text eol=crlf
+# 所有文件都不进行行尾符转换
+* -text
