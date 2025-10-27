@@ -165,7 +165,7 @@ const HostEnvironment = {
     removeEventListener: (node, eventType, handler) => {
         if (HostEnvironment.isValidNode(node) && node.removeEvent) {
             console.log(`Remove event listener ${eventType} from node:`, node);
-            node.removeEvent(eventType, handler);
+            node.removeEvent(eventType);
         } else {
             console.log(`Cannot remove event listener ${eventType} from node:`, node);
         }

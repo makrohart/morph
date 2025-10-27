@@ -139,9 +139,9 @@ namespace morph
         m_eventable.onEvent(eventName, eventHandler);
     }
 
-    void View::removeEvent(const std::string& eventName, const std::function<void(eventable::EventArgs)>& eventHandler)
+    void View::removeEvent(const std::string& eventName)
     {
-        m_eventable.removeEvent(eventName, eventHandler);
+        m_eventable.removeEvent(eventName);
     }
 
     void View::raiseEvent(const std::string& eventName, const eventable::EventArgs& eventArgs)

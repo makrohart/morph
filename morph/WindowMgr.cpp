@@ -16,7 +16,8 @@ namespace morph
     {
         if (window && std::find(m_windows.begin(), m_windows.end(), window) == m_windows.end())
         {
-            m_windows.push_back(window);
+            // The parent window is added to WindowMgr later than child window
+            m_windows.push_front(window);
         }
     }
     

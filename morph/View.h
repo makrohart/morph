@@ -39,7 +39,7 @@ namespace morph
         inline View* getParentView() { return m_pParentView; }
 
         void onEvent(const std::string& eventName, const std::function<void(eventable::EventArgs)>& eventHandler);
-        void removeEvent(const std::string& eventName, const std::function<void(eventable::EventArgs)>& eventHandler);
+        void removeEvent(const std::string& eventName);
         void raiseEvent(const std::string& eventName, const eventable::EventArgs& eventArgs);
         bool canRaiseEvent(double x, double y);
 

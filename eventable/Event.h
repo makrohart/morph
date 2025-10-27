@@ -13,18 +13,15 @@ namespace eventable
 
         void on(const std::function<void(EventArgs)>& eventHandler)
         {
-            if (m_eventHandlers.size())
-                return;
-            m_eventHandlers.push_back(eventHandler);
+            m_eventHandler = eventHandler;
         }
 
         void raise(const EventArgs& eventArgs)
         {
-            for (auto& eventHandler : m_eventHandlers)
-                eventHandler(eventArgs);
+            m_eventHandler(eventArgs);
         }
 
         private:
-        std::vector<std::function<void(EventArgs)>> m_eventHandlers;
+        std::function<void(EventArgs)> m_eventHandler;
     };
 }
