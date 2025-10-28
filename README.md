@@ -93,7 +93,9 @@ morph.exe  # Windows
 
 ## 使用示例
 
-### React组件开发
+### React组件开发（JSX语法）
+
+Morphling支持完整的JSX语法，让你像使用普通React一样编写UI代码。
 
 ```javascript
 // morphling/app.js
@@ -102,43 +104,49 @@ import React from 'react';
 function App() {
     const [count, setCount] = React.useState(0);
     
-    return React.createElement(
-        "window",
-        {
-            style: {
+    // 使用 useCallback 来稳定函数引用，避免每次渲染都创建新的函数
+    const handleClick = React.useCallback(() => {
+        setCount(prevCount => prevCount + 1);
+    }, []);
+    
+    return (
+        <window
+            style={{
                 width: '1000',
                 height: '600',
-            }
-        },
-        React.createElement(
-            "div", 
-            {
-                style: {
+            }}
+        >
+            <div 
+                style={{
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexDirection: 'column',
-                }
-            },
-            [
-                React.createElement(
-                    "button",
-                    {
-                        key: "main-button",
-                        onClick: () => setCount(count + 1),
-                        style: {
-                            widthPercent: "50",
-                            heightPercent: "50",
-                        },
-                    },
-                    `点击我 (${count})`
-                )
-            ]
-        )  
+                }}
+            >
+                <button
+                    key="main-button"
+                    onClick={handleClick}
+                    style={{
+                        widthPercent: "50",
+                        heightPercent: "50",
+                    }}
+                >
+                    {`Click Me (${count})`}
+                </button>
+            </div>
+        </window>
     );
 }
 
 export { App };
 ```
+
+### 支持的组件
+
+- `window` - 窗口容器
+- `div` - 容器视图
+- `button` - 按钮组件
+- `text` - 文本组件
 
 ## 开发指南
 
@@ -197,12 +205,12 @@ const HostEnvironment = {
 
 ## 项目路线图
 
-- 支持jsx语法
-- 支持异步、多线程和多进程
-- 支持更多html元素
-- 完善功能模块
-- 开发者工具集成
-- 自动化测试框架
+- ✅ 支持JSX语法
+- 🔄 支持异步、多线程和多进程
+- 🔄 支持更多html元素
+- 🔄 完善功能模块
+- 🔄 开发者工具集成
+- 🔄 自动化测试框架
 
 ## 贡献指南
 
