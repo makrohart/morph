@@ -16,48 +16,39 @@ function App() {
         });
     }, []); // 空依赖数组，函数引用不会改变
 
-    return React.createElement(
-        "window",
-        {
-            style: {
+    return (
+        <window
+            style={{
                 width: '1000',
                 height: '600',
-            }
-        },
-        React.createElement(
-            "div", 
-            {
-                style: {
+            }}
+        >
+            <div 
+                style={{
                     alignItems: '8',
                     justifyContent: '5',
                     flexDirection: '3',
-                }
-            },
-            [
-                React.createElement(
-                    "button",
-                    {
-                        key: "main-button",
-                        onClick: handleClick,
-                        style: {
-                            widthPercent: "50",
-                            heightPercent: "50",
-                        },
-                    },
-                    `Click Me (${count})`
-                ),
-                React.createElement(
-                    "window",
-                    {
-                        key: "sub-window",
-                        style: {
-                            width: '500',
-                            height: '300',
-                        }
-                    }
-                )
-            ]
-        )  
+                }}
+            >
+                <button
+                    key="main-button"
+                    onClick={handleClick}
+                    style={{
+                        widthPercent: "50",
+                        heightPercent: "50",
+                    }}
+                >
+                    {`Click Me (${count})`}
+                </button>
+                <window
+                    key="sub-window"
+                    style={{
+                        width: '500',
+                        height: '300',
+                    }}
+                />
+            </div>
+        </window>
     );
 }
 

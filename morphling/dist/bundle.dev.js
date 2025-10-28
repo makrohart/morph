@@ -51,7 +51,7 @@ function App() {
       justifyContent: '5',
       flexDirection: '3'
     }
-  }, [/*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("button", {
     key: "main-button",
     onClick: handleClick,
     style: {
@@ -64,7 +64,7 @@ function App() {
       width: '500',
       height: '300'
     }
-  })]));
+  })));
 }
 
 
